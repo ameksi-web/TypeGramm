@@ -5,2459 +5,1114 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TypeGramm</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        * { font-family: 'Inter', sans-serif; }
         :root {
-            --primary-color: #2AABEE;
-            --bg-primary: #ffffff;
-            --bg-secondary: #f4f4f5;
-            --bg-chat: #ffffff;
-            --text-primary: #1a1a1a;
-            --text-secondary: #6b7280;
-            --border-color: #e5e7eb;
-            --hover-bg: #f3f4f6;
-            --wallpaper: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="%23e5e7eb" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="white"/><rect width="100" height="100" fill="url(%23grid)"/></svg>');
-        }
-
-        .dark-theme {
             --bg-primary: #17212b;
             --bg-secondary: #0e1621;
-            --bg-chat: #0e1621;
-            --text-primary: #f5f5f5;
-            --text-secondary: #8b9bab;
-            --border-color: #2b5278;
-            --hover-bg: #1e2d3d;
-            --wallpaper: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="%232b5278" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="%230e1621"/><rect width="100" height="100" fill="url(%23grid)"/></svg>');
-        }
-
-        .blue-theme {
-            --primary-color: #4fc3f7;
-            --bg-primary: #1a2a3a;
-            --bg-secondary: #0f1a25;
-            --bg-chat: #1a2a3a;
-            --text-primary: #e0e0e0;
-            --text-secondary: #7a8a9a;
-            --border-color: #2a4a6a;
-            --hover-bg: #243447;
-            --wallpaper: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><radialGradient id="grad" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="%231a2a3a"/><stop offset="100%" stop-color=%230f1a25/></radialGradient></defs><rect width="100" height="100" fill="url(%23grad)"/></svg>');
-        }
-
-        .green-theme {
-            --primary-color: #4caf50;
-            --bg-primary: #1a2e1a;
-            --bg-secondary: #0f1f0f;
-            --bg-chat: #1a2e1a;
-            --text-primary: #e0e0e0;
-            --text-secondary: #7a9a7a;
-            --border-color: #2a4a2a;
-            --hover-bg: #243d24;
-            --wallpaper: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="%232a4a2a" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="%231a2e1a"/><rect width="100" height="100" fill="url(%23grid)"/></svg>');
-        }
-
-        .pink-theme {
-            --primary-color: #e91e63;
-            --bg-primary: #2e1a2e;
-            --bg-secondary: #1f0f1f;
-            --bg-chat: #2e1a2e;
-            --text-primary: #f5e0f5;
-            --text-secondary: #9a7a9a;
-            --border-color: #4a2a4a;
-            --hover-bg: #3d2443;
-            --wallpaper: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="%234a2a4a" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="%232e1a2e"/><rect width="100" height="100" fill="url(%23grid)"/></svg>');
-        }
-
-        /* Wallpaper patterns */
-        .wallpaper-default { --wallpaper: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="p1" width="20" height="20" patternUnits="userSpaceOnUse"><rect width="20" height="20" fill="%23ffffff"/><circle cx="10" cy="10" r="1" fill="%23e5e7eb"/></pattern></defs><rect width="100" height="100" fill="url(%23p1)"/></svg>'); }
-        .wallpaper-pattern { --wallpaper: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="p2" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="%23ffffff"/><path d="M 0 4 L 4 0 L 8 4 L 4 8 Z" fill="%23e5e7eb"/></pattern></defs><rect width="100" height="100" fill="url(%23p2)"/></svg>'); }
-        .wallpaper-gradient { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important; --wallpaper: none; }
-        .wallpaper-sunset { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important; --wallpaper: none; }
-        .wallpaper-ocean { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important; --wallpaper: none; }
-        .wallpaper-forest { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%) !important; --wallpaper: none; }
-        .wallpaper-custom { --wallpaper: var(--custom-wallpaper, url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23ffffff"/></svg>')); }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            min-height: 100vh;
-        }
-
-        .app-container {
-            display: flex;
-            height: 100vh;
-            max-width: 1600px;
-            margin: 0 auto;
-        }
-
-        /* Auth Screens */
-        .auth-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: var(--bg-primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            overflow-y: auto;
-        }
-
-        .auth-container {
-            width: 100%;
-            max-width: 420px;
-            padding: 40px 24px;
-        }
-
-        .auth-logo {
-            text-align: center;
-            margin-bottom: 32px;
-        }
-
-        .auth-logo-icon {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, var(--primary-color), #6b7280);
-            border-radius: 22px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 36px;
-            font-weight: bold;
-            margin-bottom: 16px;
-        }
-
-        .auth-title {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .auth-subtitle {
-            color: var(--text-secondary);
-            font-size: 15px;
-            margin-bottom: 32px;
-        }
-
-        .auth-form {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .auth-input {
-            padding: 14px 18px;
-            border: 2px solid var(--border-color);
-            border-radius: 12px;
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            font-size: 15px;
-            outline: none;
-            transition: all 0.2s ease;
-        }
-
-        .auth-input:focus {
-            border-color: var(--primary-color);
-        }
-
-        .auth-btn {
-            padding: 14px 24px;
-            border-radius: 12px;
-            border: none;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            margin-top: 8px;
-        }
-
-        .auth-btn-primary {
-            background: var(--primary-color);
-            color: white;
-        }
-
-        .auth-btn-primary:hover {
-            opacity: 0.9;
-            transform: translateY(-1px);
-        }
-
-        .auth-btn-secondary {
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            border: 2px solid var(--border-color);
-        }
-
-        .auth-link {
-            text-align: center;
-            margin-top: 24px;
-            color: var(--text-secondary);
-        }
-
-        .auth-link a {
-            color: var(--primary-color);
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            width: 380px;
-            background: var(--bg-primary);
-            border-right: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            transition: all 0.3s ease;
-        }
-
-        .sidebar-header {
-            padding: 12px 16px;
-            background: var(--bg-secondary);
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .user-avatar-small {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-color), #6b7280);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 14px;
-            cursor: pointer;
-        }
-
-        .search-bar {
-            flex: 1;
-            padding: 8px 12px;
-            background: var(--bg-primary);
-            border-radius: 22px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .search-bar input {
-            flex: 1;
-            border: none;
-            background: transparent;
-            color: var(--text-primary);
-            font-size: 14px;
-            outline: none;
-        }
-
-        .search-bar input::placeholder {
-            color: var(--text-secondary);
-        }
-
-        .nav-tabs {
-            display: flex;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .nav-tab {
-            flex: 1;
-            padding: 14px;
-            text-align: center;
-            cursor: pointer;
-            color: var(--text-secondary);
-            border-bottom: 2px solid transparent;
-            transition: all 0.2s ease;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .nav-tab:hover {
-            background: var(--hover-bg);
-        }
-
-        .nav-tab.active {
-            color: var(--primary-color);
-            border-bottom-color: var(--primary-color);
-        }
-
-        .chat-list {
-            flex: 1;
-            overflow-y: auto;
-        }
-
-        .chat-item {
-            display: flex;
-            align-items: center;
-            padding: 10px 16px;
-            cursor: pointer;
-            transition: background 0.2s ease;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .chat-item:hover {
-            background: var(--hover-bg);
-        }
-
-        .chat-item.active {
-            background: var(--hover-bg);
-            border-left: 3px solid var(--primary-color);
-        }
-
-        .avatar {
-            width: 52px;
-            height: 52px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-color), #6b7280);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 18px;
-            flex-shrink: 0;
-            position: relative;
-        }
-
-        .avatar-group {
-            background: linear-gradient(135deg, #ff6b6b, #feca57, #48dbfb);
-        }
-
-        .avatar-channel {
-            background: linear-gradient(135deg, #a55eea, #ff6b6b);
-        }
-
-        .online-indicator {
-            position: absolute;
-            bottom: 2px;
-            right: 2px;
-            width: 12px;
-            height: 12px;
-            background: #22c55e;
-            border: 2px solid var(--bg-primary);
-            border-radius: 50%;
-        }
-
-        .avatar-img {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .chat-info {
-            margin-left: 12px;
-            flex: 1;
-            min-width: 0;
-        }
-
-        .chat-name-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 4px;
-        }
-
-        .chat-name {
-            font-weight: 600;
-            font-size: 15px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .chat-time {
-            font-size: 12px;
-            color: var(--text-secondary);
-            flex-shrink: 0;
-        }
-
-        .chat-preview-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .chat-preview {
-            font-size: 14px;
-            color: var(--text-secondary);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 200px;
-        }
-
-        .unread-badge {
-            background: var(--primary-color);
-            color: white;
-            font-size: 11px;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-weight: 600;
-        }
-
-        .typing-indicator {
-            display: flex;
-            gap: 3px;
-            align-items: center;
-        }
-
-        .typing-indicator span {
-            width: 6px;
-            height: 6px;
-            background: var(--text-secondary);
-            border-radius: 50%;
-            animation: typing 1.4s infinite;
-        }
-
-        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
-        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
-
-        @keyframes typing {
-            0%, 60%, 100% { transform: translateY(0); }
-            30% { transform: translateY(-4px); }
-        }
-
-        /* Main Chat Area */
-        .main-chat {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: var(--wallpaper);
-            background-size: cover !important;
-            background-position: center !important;
-        }
-
-        .chat-header {
-            padding: 10px 20px;
-            background: var(--bg-primary);
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            backdrop-filter: blur(10px);
-        }
-
-        .chat-header-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            padding: 4px;
-            border-radius: 8px;
-            transition: background 0.2s;
-        }
-
-        .chat-header-info:hover {
-            background: var(--hover-bg);
-        }
-
-        .chat-header-title {
-            font-weight: 600;
-            font-size: 16px;
-        }
-
-        .chat-header-subtitle {
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-
-        .chat-header-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .header-btn {
-            color: var(--text-secondary);
-            cursor: pointer;
-            padding: 10px;
-            border-radius: 50%;
-            transition: all 0.2s ease;
-            font-size: 18px;
-        }
-
-        .header-btn:hover {
-            background: var(--hover-bg);
-            color: var(--primary-color);
-        }
-
-        .call-btn {
-            background: var(--primary-color);
-            color: white;
-            padding: 10px 16px;
-            border-radius: 24px;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s;
-        }
-
-        .call-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 15px rgba(42, 171, 238, 0.4);
-        }
-
-        .call-btn.end-call {
-            background: #ef4444;
-        }
-
-        .messages-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .message {
-            max-width: 60%;
-            padding: 10px 14px;
-            border-radius: 18px;
-            font-size: 15px;
-            line-height: 1.5;
-            position: relative;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        .message-outgoing {
-            align-self: flex-end;
-            background: var(--primary-color);
-            color: white;
-            border-bottom-right-radius: 4px;
-        }
-
-        .message-incoming {
-            align-self: flex-start;
-            background: var(--bg-primary);
-            border-bottom-left-radius: 4px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        }
-
-        .message-sender {
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 4px;
-            opacity: 0.8;
-        }
-
-        .message-time {
-            font-size: 11px;
-            opacity: 0.7;
-            margin-top: 4px;
-            display: block;
-        }
-
-        .message-status {
-            display: inline-block;
-            margin-left: 4px;
-        }
-
-        .message-voice {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            min-width: 180px;
-        }
-
-        .voice-play-btn {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: inherit;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            flex-shrink: 0;
-        }
-
-        .message-incoming .voice-play-btn {
-            background: var(--primary-color);
-            color: white;
-        }
-
-        .voice-wave {
-            flex: 1;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            gap: 2px;
-        }
-
-        .voice-wave span {
-            width: 3px;
-            background: currentColor;
-            border-radius: 2px;
-            opacity: 0.5;
-        }
-
-        .message-incoming .voice-wave span {
-            background: var(--primary-color);
-        }
-
-        .voice-duration {
-            font-size: 12px;
-            opacity: 0.7;
-        }
-
-        .message-input-container {
-            padding: 12px 16px;
-            background: var(--bg-primary);
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .message-input {
-            flex: 1;
-            padding: 12px 18px;
-            border: none;
-            border-radius: 24px;
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            font-size: 15px;
-            outline: none;
-        }
-
-        .message-input::placeholder {
-            color: var(--text-secondary);
-        }
-
-        .send-btn {
-            width: 46px;
-            height: 46px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            transition: all 0.2s ease;
-        }
-
-        .send-btn:hover {
-            transform: scale(1.05);
-        }
-
-        .voice-record-btn {
-            width: 46px;
-            height: 46px;
-            border-radius: 50%;
-            background: var(--bg-secondary);
-            color: var(--text-secondary);
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            transition: all 0.2s ease;
-        }
-
-        .voice-record-btn.recording {
-            background: #ef4444;
-            color: white;
-            animation: pulse 1s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
-        /* Call Overlay */
-        .call-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            z-index: 10000;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: white;
-        }
-
-        .call-overlay.active {
-            display: flex;
-        }
-
-        .call-avatar {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-color), #6b7280);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 60px;
-            font-weight: bold;
-            margin-bottom: 24px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-        }
-
-        .call-name {
-            font-size: 28px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .call-status {
-            font-size: 16px;
-            opacity: 0.7;
-            margin-bottom: 32px;
-        }
-
-        .call-controls {
-            display: flex;
-            gap: 24px;
-            margin-bottom: 48px;
-        }
-
-        .call-control-btn {
-            width: 64px;
-            height: 64px;
-            border-radius: 50%;
-            border: none;
-            cursor: pointer;
-            font-size: 24px;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .call-control-btn:hover {
-            transform: scale(1.1);
-        }
-
-        .call-control-btn.mute {
-            background: rgba(255,255,255,0.1);
-            color: white;
-        }
-
-        .call-control-btn.end {
-            background: #ef4444;
-            color: white;
-        }
-
-        .call-control-btn.video {
-            background: rgba(255,255,255,0.1);
-            color: white;
-        }
-
-        /* Modals */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.6);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            backdrop-filter: blur(4px);
-        }
-
-        .modal-overlay.active {
-            display: flex;
-        }
-
-        .modal {
-            background: var(--bg-primary);
-            border-radius: 20px;
-            width: 90%;
-            max-width: 520px;
-            max-height: 85vh;
-            overflow-y: auto;
-            animation: slideIn 0.3s ease;
-        }
-
-        .modal-header {
-            padding: 20px 24px;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            background: var(--bg-primary);
-            z-index: 1;
-        }
-
-        .modal-title {
-            font-size: 20px;
-            font-weight: 600;
-        }
-
-        .modal-close {
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 50%;
-            transition: all 0.2s;
-            color: var(--text-secondary);
-        }
-
-        .modal-close:hover {
-            background: var(--hover-bg);
-        }
-
-        .modal-body {
-            padding: 24px;
-        }
-
-        /* Settings */
-        .settings-section {
-            margin-bottom: 24px;
-        }
-
-        .settings-section-title {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-bottom: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-weight: 600;
-        }
-
-        .theme-options {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 10px;
-        }
-
-        .theme-option {
-            aspect-ratio: 1;
-            border-radius: 14px;
-            cursor: pointer;
-            border: 3px solid transparent;
-            transition: all 0.2s ease;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-            font-size: 10px;
-            font-weight: 600;
-            overflow: hidden;
-        }
-
-        .theme-option:hover {
-            transform: scale(1.05);
-        }
-
-        .theme-option.selected {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px var(--bg-primary);
-        }
-
-        .theme-preview {
-            width: 100%;
-            height: 60%;
-        }
-
-        .wallpaper-options {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-        }
-
-        .wallpaper-option {
-            aspect-ratio: 4/3;
-            border-radius: 12px;
-            cursor: pointer;
-            border: 3px solid transparent;
-            transition: all 0.2s ease;
-            background-size: cover;
-            background-position: center;
-        }
-
-        .wallpaper-option:hover {
-            transform: scale(1.02);
-        }
-
-        .wallpaper-option.selected {
-            border-color: var(--primary-color);
-        }
-
-        .wallpaper-option.custom {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--bg-secondary);
-            color: var(--text-secondary);
-            font-size: 12px;
-        }
-
-        .setting-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px 0;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .setting-item:last-child {
-            border-bottom: none;
-        }
-
-        .setting-label {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-
-        .setting-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            background: var(--bg-secondary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--primary-color);
-            font-size: 18px;
-        }
-
-        .setting-text h4 {
-            font-weight: 600;
-            margin-bottom: 2px;
-        }
-
-        .setting-text p {
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-
-        /* Toggle Switch */
-        .toggle-switch {
-            position: relative;
-            width: 52px;
-            height: 28px;
-        }
-
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .toggle-slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: var(--border-color);
-            border-radius: 28px;
-            transition: all 0.3s;
-        }
-
-        .toggle-slider::before {
-            position: absolute;
-            content: "";
-            height: 22px;
-            width: 22px;
-            left: 3px;
-            bottom: 3px;
-            background: white;
-            border-radius: 50%;
-            transition: all 0.3s;
-        }
-
-        .toggle-switch input:checked + .toggle-slider {
-            background: var(--primary-color);
-        }
-
-        .toggle-switch input:checked + .toggle-slider::before {
-            transform: translateX(24px);
-        }
-
-        /* Profile Settings */
-        .profile-avatar-edit {
-            position: relative;
-            width: 100px;
-            height: 100px;
-            margin: 0 auto 20px;
-        }
-
-        .profile-avatar-edit .avatar {
-            width: 100%;
-            height: 100%;
-            font-size: 36px;
-            cursor: pointer;
-        }
-
-        .avatar-edit-btn {
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            width: 32px;
-            height: 32px;
-            background: var(--primary-color);
-            border: 3px solid var(--bg-primary);
-            border-radius: 50%;
-            color: white;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-        }
-
-        /* Form Elements */
-        .input-group {
-            margin-bottom: 20px;
-        }
-
-        .input-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            font-size: 14px;
-        }
-
-        .text-input {
-            width: 100%;
-            padding: 14px 16px;
-            border: 2px solid var(--border-color);
-            border-radius: 12px;
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            font-size: 15px;
-            outline: none;
-            transition: all 0.2s ease;
-        }
-
-        .text-input:focus {
-            border-color: var(--primary-color);
-        }
-
-        textarea.text-input {
-            resize: none;
-            min-height: 80px;
-        }
-
-        /* Buttons */
-        .btn {
-            padding: 14px 24px;
-            border-radius: 12px;
-            border: none;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .btn-primary {
-            background: var(--primary-color);
-            color: white;
-            width: 100%;
-        }
-
-        .btn-primary:hover {
-            opacity: 0.9;
-            transform: translateY(-1px);
-        }
-
-        .btn-secondary {
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-        }
-
-        .btn-danger {
-            background: #ef4444;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #dc2626;
-        }
-
-        /* Friend Requests */
-        .request-item {
-            display: flex;
-            align-items: center;
-            padding: 14px;
-            border-radius: 14px;
-            background: var(--bg-secondary);
-            margin-bottom: 10px;
-        }
-
-        .request-avatar {
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-color), #6b7280);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 20px;
-            flex-shrink: 0;
-        }
-
-        .request-info {
-            flex: 1;
-            margin-left: 14px;
-            min-width: 0;
-        }
-
-        .request-name {
-            font-weight: 600;
-            margin-bottom: 2px;
-        }
-
-        .request-username {
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-
-        .request-message {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-top: 4px;
-            font-style: italic;
-        }
-
-        .request-actions {
-            display: flex;
-            gap: 8px;
-            margin-left: 12px;
-        }
-
-        .btn-accept {
-            background: var(--primary-color);
-            color: white;
-            padding: 10px 18px;
-            border-radius: 10px;
-            border: none;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 600;
-        }
-
-        .btn-decline {
-            background: transparent;
-            color: var(--text-secondary);
-            padding: 10px 14px;
-            border-radius: 10px;
-            border: 1px solid var(--border-color);
-            cursor: pointer;
-            font-size: 13px;
-        }
-
-        /* FAB Menu */
-        .fab {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 4px 20px rgba(42, 171, 238, 0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            transition: all 0.2s ease;
-            z-index: 100;
-        }
-
-        .fab:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 30px rgba(42, 171, 238, 0.5);
-        }
-
-        .fab-menu {
-            position: fixed;
-            bottom: 100px;
-            right: 24px;
-            display: none;
-            flex-direction: column;
-            gap: 10px;
-            z-index: 100;
-        }
-
-        .fab-menu.active {
-            display: flex;
-        }
-
-        .fab-item {
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            padding: 14px 18px;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-weight: 500;
-        }
-
-        .fab-item:hover {
-            transform: translateX(-4px);
-        }
-
-        .fab-item i {
-            width: 24px;
-            text-align: center;
-        }
-
-        /* Empty States */
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--text-secondary);
-        }
-
-        .empty-state i {
-            font-size: 56px;
-            margin-bottom: 16px;
-            opacity: 0.4;
-        }
-
-        .empty-state h3 {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: var(--text-primary);
-        }
-
-        .empty-state p {
-            font-size: 14px;
-        }
-
-        /* Responsive */
-        @media (max-width: 900px) {
-            .sidebar {
-                width: 100%;
-                position: absolute;
-                z-index: 10;
-                height: 100%;
-            }
-            
-            .sidebar.hidden {
-                display: none;
-            }
-        }
-
-        @media (max-width: 600px) {
-            .modal {
-                width: 100%;
-                max-height: 100vh;
-                border-radius: 20px 20px 0 0;
-                margin-top: auto;
-            }
-
-            .theme-options {
-                grid-template-columns: repeat(3, 1fr);
-            }
-
-            .message {
-                max-width: 80%;
-            }
-        }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--border-color);
-            border-radius: 3px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--text-secondary);
-        }
-
-        /* Recording indicator */
-        .recording-indicator {
-            position: fixed;
-            bottom: 100px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #ef4444;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 24px;
-            display: none;
-            align-items: center;
-            gap: 10px;
-            font-weight: 600;
-            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
-            z-index: 100;
-        }
-
-        .recording-indicator.active {
-            display: flex;
-        }
-
-        .recording-dot {
-            width: 10px;
-            height: 10px;
-            background: white;
-            border-radius: 50%;
-            animation: pulse 1s infinite;
-        }
-
-        /* GitHub Button */
-        .github-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            padding: 14px 20px;
-            background: #24292e;
-            color: white;
-            border-radius: 12px;
-            text-decoration: none;
-            font-size: 15px;
-            font-weight: 600;
-            transition: all 0.2s ease;
-            margin-top: 16px;
-        }
-
-        .github-btn:hover {
-            background: #1a1e22;
-            transform: translateY(-2px);
-        }
-
-        /* Privacy Settings */
-        .privacy-option {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px 0;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .privacy-option:last-child {
-            border-bottom: none;
-        }
-
-        .privacy-select {
-            padding: 8px 12px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            font-size: 14px;
-            cursor: pointer;
-        }
-
-        /* Dropdown */
-        .dropdown {
-            position: relative;
-        }
-
-        .dropdown-menu {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-            min-width: 200px;
-            display: none;
-            z-index: 100;
-            overflow: hidden;
-        }
-
-        .dropdown-menu.active {
-            display: block;
-        }
-
-        .dropdown-item {
-            padding: 12px 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .dropdown-item:hover {
-            background: var(--hover-bg);
-        }
-
-        .dropdown-item.danger {
-            color: #ef4444;
-        }
-
-        .dropdown-divider {
-            height: 1px;
-            background: var(--border-color);
-            margin: 4px 0;
-        }
+            --bg-tertiary: #242f3d;
+            --text-primary: #ffffff;
+            --text-secondary: #8b9198;
+            --accent: #5288c1;
+            --accent-hover: #6ba1d9;
+            --message-out: #2b5278;
+            --message-in: #182533;
+            --online: #4dcd5e;
+            --border: #1f2936;
+        }
+        .theme-light {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f0f2f5;
+            --bg-tertiary: #e4e6eb;
+            --text-primary: #1c1e21;
+            --text-secondary: #65676b;
+            --accent: #0084ff;
+            --accent-hover: #0099ff;
+            --message-out: #0084ff;
+            --message-in: #e4e6eb;
+            --border: #dcdee3;
+        }
+        .theme-purple {
+            --bg-primary: #1e1a2e;
+            --bg-secondary: #151020;
+            --bg-tertiary: #2d2640;
+            --text-primary: #ffffff;
+            --text-secondary: #9890b0;
+            --accent: #8b5cf6;
+            --accent-hover: #a78bfa;
+            --message-out: #6d28d9;
+            --message-in: #2d2640;
+            --border: #3d3560;
+        }
+        .theme-green {
+            --bg-primary: #1a2e1e;
+            --bg-secondary: #0f1f12;
+            --bg-tertiary: #264030;
+            --text-primary: #ffffff;
+            --text-secondary: #90b098;
+            --accent: #22c55e;
+            --accent-hover: #4ade80;
+            --message-out: #16a34a;
+            --message-in: #264030;
+            --border: #356040;
+        }
+        body { background: var(--bg-secondary); color: var(--text-primary); }
+        .bg-primary { background: var(--bg-primary); }
+        .bg-secondary { background: var(--bg-secondary); }
+        .bg-tertiary { background: var(--bg-tertiary); }
+        .text-primary { color: var(--text-primary); }
+        .text-secondary { color: var(--text-secondary); }
+        .bg-accent { background: var(--accent); }
+        .bg-accent:hover { background: var(--accent-hover); }
+        .text-accent { color: var(--accent); }
+        .border-theme { border-color: var(--border); }
+        .message-out { background: var(--message-out); }
+        .message-in { background: var(--message-in); }
+        .online-dot { background: var(--online); }
+        .scrollbar-thin::-webkit-scrollbar { width: 6px; }
+        .scrollbar-thin::-webkit-scrollbar-track { background: var(--bg-secondary); }
+        .scrollbar-thin::-webkit-scrollbar-thumb { background: var(--bg-tertiary); border-radius: 3px; }
+        .chat-item:hover { background: var(--bg-tertiary); }
+        .chat-item.active { background: var(--accent); }
+        input, textarea { background: var(--bg-tertiary); color: var(--text-primary); }
+        input::placeholder, textarea::placeholder { color: var(--text-secondary); }
+        .modal-overlay { background: rgba(0,0,0,0.6); }
     </style>
 </head>
-<body>
-    <!-- Auth Screen -->
-    <div class="auth-screen" id="authScreen">
-        <div class="auth-container">
-            <!-- Logo -->
-            <div class="auth-logo">
-                <div class="auth-logo-icon">TG</div>
-                <h1 class="auth-title">TypeGramm</h1>
-                <p class="auth-subtitle">Connect with friends and communities</p>
-            </div>
-
-            <!-- Login Form -->
-            <div id="loginForm" class="auth-form">
-                <input type="text" class="auth-input" id="loginUsername" placeholder="@username or phone">
-                <input type="password" class="auth-input" id="loginPassword" placeholder="Password">
-                <button class="btn auth-btn auth-btn-primary" onclick="login()">Sign In</button>
-                <p class="auth-link">Don't have an account? <a href="#" onclick="showRegister()">Sign Up</a></p>
-            </div>
-
-            <!-- Register Form -->
-            <div id="registerForm" class="auth-form" style="display: none;">
-                <input type="text" class="auth-input" id="regName" placeholder="Your Name">
-                <input type="text" class="auth-input" id="regUsername" placeholder="@username">
-                <input type="tel" class="auth-input" id="regPhone" placeholder="Phone Number">
-                <input type="password" class="auth-input" id="regPassword" placeholder="Password">
-                <button class="btn auth-btn auth-btn-primary" onclick="register()">Create Account</button>
-                <p class="auth-link">Already have an account? <a href="#" onclick="showLogin()">Sign In</a></p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Main App -->
-    <div class="app-container" id="mainApp" style="display: none;">
-        <!-- Sidebar -->
-        <div class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <div class="dropdown">
-                    <div class="user-avatar-small" id="currentUserAvatar" onclick="toggleDropdown()">
-                        <span id="avatarInitial">U</span>
-                    </div>
-                    <div class="dropdown-menu" id="userDropdown">
-                        <div class="dropdown-item" onclick="openProfileSettings()">
-                            <i class="fas fa-user" style="color: var(--primary-color);"></i>
-                            <span>My Profile</span>
-                        </div>
-                        <div class="dropdown-item" onclick="openSettings()">
-                            <i class="fas fa-cog" style="color: var(--text-secondary);"></i>
-                            <span>Settings</span>
-                        </div>
-                        <div class="dropdown-divider"></div>
-                        <div class="dropdown-item danger" onclick="logout()">
-                            <i class="fas fa-sign-out-alt"></i>
-                            <span>Log Out</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="search-bar">
-                    <i class="fas fa-search" style="color: var(--text-secondary);"></i>
-                    <input type="text" id="searchInput" placeholder="Search" oninput="renderChatList()">
-                </div>
-            </div>
-
-            <div class="nav-tabs">
-                <div class="nav-tab active" data-tab="chats" onclick="switchTab('chats')">Chats</div>
-                <div class="nav-tab" data-tab="groups" onclick="switchTab('groups')">Groups</div>
-                <div class="nav-tab" data-tab="channels" onclick="switchTab('channels')">Channels</div>
-                <div class="nav-tab" data-tab="requests" onclick="switchTab('requests')">
-                    Requests <span id="requestCount" class="unread-badge" style="display: none;">0</span>
-                </div>
-            </div>
-
-            <div class="chat-list" id="chatList"></div>
-
-            <button class="fab" id="fabBtn" onclick="toggleFabMenu()">
-                <i class="fas fa-plus"></i>
-            </button>
-
-            <div class="fab-menu" id="fabMenu">
-                <div class="fab-item" onclick="openAddUserModal()">
-                    <i class="fas fa-user-plus" style="color: var(--primary-color);"></i>
-                    <span>Add Friend</span>
-                </div>
-                <div class="fab-item" onclick="openCreateGroupModal()">
-                    <i class="fas fa-users" style="color: #4fc3f7;"></i>
-                    <span>New Group</span>
-                </div>
-                <div class="fab-item" onclick="openCreateChannelModal()">
-                    <i class="fas fa-bullhorn" style="color: #ff6b6b;"></i>
-                    <span>New Channel</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Main Chat -->
-        <div class="main-chat" id="mainChat">
-            <!-- Empty State -->
-            <div id="emptyChatState" class="empty-state" style="display: flex; flex-direction: column; justify-content: center; height: 100%;">
-                <i class="fas fa-comments"></i>
-                <h3>Welcome to TypeGramm</h3>
-                <p>Select a chat or start a new conversation</p>
-            </div>
-
-            <!-- Chat Content -->
-            <div id="chatContent" style="display: none; flex-direction: column; height: 100%;">
-                <div class="chat-header">
-                    <div class="chat-header-info" id="chatHeaderInfo" onclick="openChatInfo()">
-                        <div class="avatar" id="currentAvatar">
-                            <span id="chatAvatarInitial">U</span>
-                            <div id="onlineIndicator" class="online-indicator" style="display: none;"></div>
-                        </div>
-                        <div>
-                            <div class="chat-header-title" id="currentTitle">Chat Name</div>
-                            <div class="chat-header-subtitle" id="currentSubtitle">Online</div>
-                        </div>
-                    </div>
-                    <div class="chat-header-actions">
-                        <button class="call-btn" id="callBtn" onclick="startCall()">
-                            <i class="fas fa-phone"></i>
-                            Call
-                        </button>
-                        <div class="header-btn" onclick="openChatSettings()">
-                            <i class="fas fa-ellipsis-v"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="messages-container" id="messagesContainer"></div>
-
-                <div class="message-input-container">
-                    <div class="header-btn" onclick="openEmojiPicker()">
-                        <i class="far fa-smile"></i>
-                    </div>
-                    <div class="header-btn" onclick="openAttachmentMenu()">
-                        <i class="fas fa-paperclip"></i>
-                    </div>
-                    <input type="text" class="message-input" id="messageInput" placeholder="Write a message..." onkeypress="handleMessageKeypress(event)">
-                    <button class="voice-record-btn" id="voiceRecordBtn" onmousedown="startRecording()" onmouseup="stopRecording()" ontouchstart="startRecording()" ontouchend="stopRecording()">
-                        <i class="fas fa-microphone"></i>
-                    </button>
-                    <button class="send-btn" onclick="sendMessage()">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Recording Indicator -->
-    <div class="recording-indicator" id="recordingIndicator">
-        <div class="recording-dot"></div>
-        <span>Recording... <span id="recordingTime">0:00</span></span>
-    </div>
-
-    <!-- Call Overlay -->
-    <div class="call-overlay" id="callOverlay">
-        <div class="call-avatar" id="callAvatar">U</div>
-        <div class="call-name" id="callName">User Name</div>
-        <div class="call-status" id="callStatus">Connecting...</div>
-        <div class="call-controls">
-            <button class="call-control-btn mute" id="muteBtn" onclick="toggleMute()">
-                <i class="fas fa-microphone-slash"></i>
-            </button>
-            <button class="call-control-btn video" id="videoBtn" onclick="toggleVideo()" style="display: none;">
-                <i class="fas fa-video"></i>
-            </button>
-            <button class="call-control-btn end" onclick="endCall()">
-                <i class="fas fa-phone-slash"></i>
-            </button>
-        </div>
-        <p style="opacity: 0.5; font-size: 13px;">TypeGramm Voice Call</p>
-    </div>
-
-    <!-- Settings Modal -->
-    <div class="modal-overlay" id="settingsModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h2 class="modal-title">Settings</h2>
-                <div class="modal-close" onclick="closeSettings()">
-                    <i class="fas fa-times"></i>
-                </div>
-            </div>
-            <div class="modal-body">
-                <!-- Theme -->
-                <div class="settings-section">
-                    <div class="settings-section-title">Theme</div>
-                    <div class="theme-options">
-                        <div class="theme-option selected" data-theme="default" onclick="selectTheme('default')">
-                            <div class="theme-preview" style="background: linear-gradient(135deg, #fff, #e5e7eb);"></div>
-                            <span>Classic</span>
-                        </div>
-                        <div class="theme-option" data-theme="dark" onclick="selectTheme('dark')">
-                            <div class="theme-preview" style="background: linear-gradient(135deg, #17212b, #0e1621);"></div>
-                            <span>Dark</span>
-                        </div>
-                        <div class="theme-option" data-theme="blue" onclick="selectTheme('blue')">
-                            <div class="theme-preview" style="background: linear-gradient(135deg, #1a2a3a, #0f1a25);"></div>
-                            <span>Night</span>
-                        </div>
-                        <div class="theme-option" data-theme="green" onclick="selectTheme('green')">
-                            <div class="theme-preview" style="background: linear-gradient(135deg, #1a2e1a, #0f1f0f);"></div>
-                            <span>Forest</span>
-                        </div>
-                        <div class="theme-option" data-theme="pink" onclick="selectTheme('pink')">
-                            <div class="theme-preview" style="background: linear-gradient(135deg, #2e1a2e, #1f0f1f);"></div>
-                            <span>Berry</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Wallpaper -->
-                <div class="settings-section">
-                    <div class="settings-section-title">Chat Background</div>
-                    <div class="wallpaper-options">
-                        <div class="wallpaper-option wallpaper-default selected" onclick="selectWallpaper('default')"></div>
-                        <div class="wallpaper-option wallpaper-pattern" onclick="selectWallpaper('pattern')"></div>
-                        <div class="wallpaper-option wallpaper-gradient" onclick="selectWallpaper('gradient')"></div>
-                        <div class="wallpaper-option wallpaper-sunset" onclick="selectWallpaper('sunset')"></div>
-                        <div class="wallpaper-option wallpaper-ocean" onclick="selectWallpaper('ocean')"></div>
-                        <div class="wallpaper-option wallpaper-forest" onclick="selectWallpaper('forest')"></div>
-                        <div class="wallpaper-option custom" onclick="selectWallpaper('custom')">
-                            <i class="fas fa-upload"></i>
-                            <span>Custom</span>
-                        </div>
-                    </div>
-                    <input type="file" id="customWallpaperInput" accept="image/*" style="display: none;" onchange="uploadCustomWallpaper(event)">
-                </div>
-
-                <!-- Notifications -->
-                <div class="settings-section">
-                    <div class="settings-section-title">Notifications</div>
-                    <div class="setting-item">
-                        <div class="setting-label">
-                            <div class="setting-icon"><i class="fas fa-bell"></i></div>
-                            <div class="setting-text">
-                                <h4>Notifications</h4>
-                                <p>Receive message notifications</p>
-                            </div>
-                        </div>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="notifyToggle" checked onchange="updateSetting('notifications', this.checked)">
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
-                    <div class="setting-item">
-                        <div class="setting-label">
-                            <div class="setting-icon"><i class="fas fa-volume-up"></i></div>
-                            <div class="setting-text">
-                                <h4>Sound</h4>
-                                <p>Play sound for new messages</p>
-                            </div>
-                        </div>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="soundToggle" checked onchange="updateSetting('sound', this.checked)">
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
-                    <div class="setting-item">
-                        <div class="setting-label">
-                            <div class="setting-icon"><i class="fas fa-vibration"></i></div>
-                            <div class="setting-text">
-                                <h4>Vibration</h4>
-                                <p>Vibrate for new messages</p>
-                            </div>
-                        </div>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="vibrateToggle" checked onchange="updateSetting('vibration', this.checked)">
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Privacy -->
-                <div class="settings-section">
-                    <div class="settings-section-title">Privacy & Security</div>
-                    <div class="privacy-option">
-                        <div class="setting-label">
-                            <div class="setting-icon"><i class="fas fa-eye"></i></div>
-                            <div class="setting-text">
-                                <h4>Last Seen</h4>
-                                <p>Who can see your last seen</p>
-                            </div>
-                        </div>
-                        <select class="privacy-select" id="lastSeenPrivacy" onchange="updatePrivacy('lastSeen', this.value)">
-                            <option value="everyone">Everyone</option>
-                            <option value="contacts">My Contacts</option>
-                            <option value="nobody">Nobody</option>
-                        </select>
-                    </div>
-                    <div class="privacy-option">
-                        <div class="setting-label">
-                            <div class="setting-icon"><i class="fas fa-user-plus"></i></div>
-                            <div class="setting-text">
-                                <h4>Add to Groups</h4>
-                                <p>Who can add you to groups</p>
-                            </div>
-                        </div>
-                        <select class="privacy-select" id="groupPrivacy" onchange="updatePrivacy('groupAdd', this.value)">
-                            <option value="everyone">Everyone</option>
-                            <option value="contacts">My Contacts</option>
-                            <option value="nobody">Nobody</option>
-                        </select>
-                    </div>
-                    <div class="setting-item">
-                        <div class="setting-label">
-                            <div class="setting-icon"><i class="fas fa-shield-alt"></i></div>
-                            <div class="setting-text">
-                                <h4>Two-Step Verification</h4>
-                                <p>Add extra security to your account</p>
-                            </div>
-                        </div>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="twoFactorToggle" onchange="updateSetting('twoFactor', this.checked)">
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Data -->
-                <div class="settings-section">
-                    <div class="settings-section-title">Data & Storage</div>
-                    <div class="setting-item" onclick="clearCache()">
-                        <div class="setting-label">
-                            <div class="setting-icon"><i class="fas fa-trash"></i></div>
-                            <div class="setting-text">
-                                <h4>Clear Cache</h4>
-                                <p>Free up storage space</p>
-                            </div>
-                        </div>
-                        <i class="fas fa-chevron-right" style="color: var(--text-secondary);"></i>
-                    </div>
-                    <div class="setting-item">
-                        <div class="setting-label">
-                            <div class="setting-icon"><i class="fas fa-download"></i></div>
-                            <div class="setting-text">
-                                <h4>Auto-Download Media</h4>
-                                <p>Automatically download media</p>
-                            </div>
-                        </div>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="autoDownloadToggle" checked onchange="updateSetting('autoDownload', this.checked)">
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
-                </div>
-
-                <a href="https://github.com" target="_blank" class="github-btn">
-                    <i class="fab fa-github"></i>
-                    View on GitHub
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Profile Settings Modal -->
-    <div class="modal-overlay" id="profileModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h2 class="modal-title">Edit Profile</h2>
-                <div class="modal-close" onclick="closeProfileModal()">
-                    <i class="fas fa-times"></i>
-                </div>
-            </div>
-            <div class="modal-body">
-                <div class="profile-avatar-edit">
-                    <div class="avatar" id="profileAvatar">
-                        <span id="profileAvatarInitial">U</span>
-                    </div>
-                    <label class="avatar-edit-btn" for="avatarInput">
-                        <i class="fas fa-camera"></i>
-                    </label>
-                    <input type="file" id="avatarInput" accept="image/*" style="display: none;" onchange="uploadAvatar(event)">
-                </div>
-
-                <div class="input-group">
-                    <label class="input-label">Display Name</label>
-                    <input type="text" class="text-input" id="editDisplayName" placeholder="Your Name">
-                </div>
-
-                <div class="input-group">
-                    <label class="input-label">Username</label>
-                    <input type="text" class="text-input" id="editUsername" placeholder="@username" readonly>
-                </div>
-
-                <div class="input-group">
-                    <label class="input-label">Bio</label>
-                    <textarea class="text-input" id="editBio" rows="3" placeholder="Tell others about yourself"></textarea>
-                </div>
-
-                <div class="input-group">
-                    <label class="input-label">Phone</label>
-                    <input type="tel" class="text-input" id="editPhone" placeholder="Phone Number">
-                </div>
-
-                <button class="btn btn-primary" onclick="saveProfile()">Save Changes</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Add User Modal -->
-    <div class="modal-overlay" id="addUserModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h2 class="modal-title">Add Friend</h2>
-                <div class="modal-close" onclick="closeAddUserModal()">
-                    <i class="fas fa-times"></i>
-                </div>
-            </div>
-            <div class="modal-body">
-                <p style="color: var(--text-secondary); margin-bottom: 20px;">Enter the username to send a friend request</p>
-                <div class="input-group">
-                    <label class="input-label">Username</label>
-                    <input type="text" class="text-input" id="addUserUsername" placeholder="@username">
-                </div>
-                <div class="input-group">
-                    <label class="input-label">Message (optional)</label>
-                    <textarea class="text-input" id="addUserMessage" rows="3" placeholder="Hi! I'd like to add you as a friend..." style="resize: none;"></textarea>
-                </div>
-                <button class="btn btn-primary" onclick="sendFriendRequest()">Send Request</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Create Group Modal -->
-    <div class="modal-overlay" id="createGroupModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h2 class="modal-title">Create Group</h2>
-                <div class="modal-close" onclick="closeCreateGroupModal()">
-                    <i class="fas fa-times"></i>
-                </div>
-            </div>
-            <div class="modal-body">
-                <div class="input-group">
-                    <label class="input-label">Group Name</label>
-                    <input type="text" class="text-input" id="groupName" placeholder="Enter group name">
-                </div>
-                <div class="input-group">
-                    <label class="input-label">Description</label>
-                    <textarea class="text-input" id="groupDescription" rows="2" placeholder="Group description" style="resize: none;"></textarea>
-                </div>
-                <div class="input-group">
-                    <label class="input-label">Add Members</label>
-                    <div id="groupMembersList" style="max-height: 150px; overflow-y: auto;">
-                        <!-- Friends list for selection -->
-                    </div>
-                </div>
-                <button class="btn btn-primary" onclick="createGroup()">Create Group</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Create Channel Modal -->
-    <div class="modal-overlay" id="createChannelModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h2 class="modal-title">Create Channel</h2>
-                <div class="modal-close" onclick="closeCreateChannelModal()">
-                    <i class="fas fa-times"></i>
-                </div>
-            </div>
-            <div class="modal-body">
-                <p style="color: var(--text-secondary); margin-bottom: 16px;">Channels are for broadcasting to large audiences</p>
-                <div class="input-group">
-                    <label class="input-label">Channel Name</label>
-                    <input type="text" class="text-input" id="channelName" placeholder="Enter channel name">
-                </div>
-                <div class="input-group">
-                    <label class="input-label">Description</label>
-                    <textarea class="text-input" id="channelDescription" rows="2" placeholder="Channel description" style="resize: none;"></textarea>
-                </div>
-                <button class="btn btn-primary" onclick="createChannel()">Create Channel</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Share Modal -->
-    <div class="modal-overlay" id="shareModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h2 class="modal-title">Share TypeGramm</h2>
-                <div class="modal-close" onclick="closeShareModal()">
-                    <i class="fas fa-times"></i>
-                </div>
-            </div>
-            <div class="modal-body">
-                <p style="text-align: center; margin-bottom: 20px; color: var(--text-secondary);">Share TypeGramm with your friends!</p>
-                <div style="display: flex; justify-content: center; gap: 16px; margin-bottom: 24px;">
-                    <div class="header-btn" style="padding: 16px; background: #1877f2; color: white; border-radius: 12px; cursor: pointer;" onclick="shareToFacebook()">
-                        <i class="fab fa-facebook-f" style="font-size: 20px;"></i>
-                    </div>
-                    <div class="header-btn" style="padding: 16px; background: #1da1f2; color: white; border-radius: 12px; cursor: pointer;" onclick="shareToTwitter()">
-                        <i class="fab fa-twitter" style="font-size: 20px;"></i>
-                    </div>
-                    <div class="header-btn" style="padding: 16px; background: #25d366; color: white; border-radius: 12px; cursor: pointer;" onclick="shareToWhatsapp()">
-                        <i class="fab fa-whatsapp" style="font-size: 20px;"></i>
-                    </div>
-                    <div class="header-btn" style="padding: 16px; background: #0088cc; color: white; border-radius: 12px; cursor: pointer;" onclick="shareToTelegram()">
-                        <i class="fab fa-telegram" style="font-size: 20px;"></i>
-                    </div>
-                </div>
-                <div class="input-group">
-                    <label class="input-label">Or copy link</label>
-                    <div style="display: flex; gap: 8px;">
-                        <input type="text" class="text-input" value="https://github.com/yourusername/typegramm" readonly id="shareLink">
-                        <button class="btn btn-primary" style="width: auto; padding: 12px 20px;" onclick="copyShareLink()">Copy</button>
-                    </div>
-                </div>
-                <a href="https://github.com" target="_blank" class="github-btn">
-                    <i class="fab fa-github"></i>
-                    Star on GitHub
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Chat Info Modal -->
-    <div class="modal-overlay" id="chatInfoModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h2 class="modal-title" id="chatInfoTitle">Chat Info</h2>
-                <div class="modal-close" onclick="closeChatInfoModal()">
-                    <i class="fas fa-times"></i>
-                </div>
-            </div>
-            <div class="modal-body">
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <div class="avatar" id="chatInfoAvatar" style="width: 100px; height: 100px; font-size: 36px; margin: 0 auto 12px;">
-                        <span id="chatInfoAvatarInitial">U</span>
-                    </div>
-                    <h3 id="chatInfoName" style="font-size: 20px; font-weight: 600; margin-bottom: 4px;">Chat Name</h3>
-                    <p id="chatInfoStatus" style="color: var(--text-secondary); font-size: 14px;">online</p>
-                </div>
-
-                <div id="chatInfoBio" style="text-align: center; padding: 12px; background: var(--bg-secondary); border-radius: 12px; margin-bottom: 20px; display: none;">
-                    <p style="font-size: 14px; color: var(--text-secondary);">Bio goes here</p>
-                </div>
-
-                <div id="chatInfoMedia" style="margin-bottom: 20px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                        <span style="font-weight: 600;">Shared Media</span>
-                        <span style="color: var(--primary-color); font-size: 14px; cursor: pointer;">View All</span>
-                    </div>
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; border-radius: 12px; overflow: hidden;">
-                        <div style="aspect-ratio: 1; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-image" style="color: var(--text-secondary);"></i>
-                        </div>
-                        <div style="aspect-ratio: 1; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-video" style="color: var(--text-secondary);"></i>
-                        </div>
-                        <div style="aspect-ratio: 1; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-file" style="color: var(--text-secondary);"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="groupMembersSection" style="display: none;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                        <span style="font-weight: 600;">Members</span>
-                        <span id="memberCount" style="color: var(--text-secondary); font-size: 14px;">0</span>
-                    </div>
-                    <div id="groupMembersList" style="max-height: 200px; overflow-y: auto;"></div>
-                </div>
-
-                <div style="border-top: 1px solid var(--border-color); padding-top: 16px; margin-top: 16px;">
-                    <div class="setting-item" style="padding: 12px 0;">
-                        <div class="setting-label">
-                            <div class="setting-icon"><i class="fas fa-bell"></i></div>
-                            <div class="setting-text">
-                                <h4>Mute Notifications</h4>
-                            </div>
-                        </div>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="muteNotifications">
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
-                    <div class="setting-item" style="padding: 12px 0;">
-                        <div class="setting-label">
-                            <div class="setting-icon" style="color: #ef4444;"><i class="fas fa-trash"></i></div>
-                            <div class="setting-text">
-                                <h4 style="color: #ef4444;">Delete Chat</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Attachment Menu -->
-    <div class="modal-overlay" id="attachmentModal">
-        <div class="modal" style="max-width: 320px;">
-            <div class="modal-header">
-                <h2 class="modal-title">Attach File</h2>
-                <div class="modal-close" onclick="closeAttachmentModal()">
-                    <i class="fas fa-times"></i>
-                </div>
-            </div>
-            <div class="modal-body">
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
-                    <div class="fab-item" style="flex-direction: column; text-align: center;" onclick="openFilePicker('image')">
-                        <i class="fas fa-image" style="font-size: 28px; color: #4caf50;"></i>
-                        <span style="margin-top: 8px;">Photo</span>
-                    </div>
-                    <div class="fab-item" style="flex-direction: column; text-align: center;" onclick="openFilePicker('video')">
-                        <i class="fas fa-video" style="font-size: 28px; color: #2196f3;"></i>
-                        <span style="margin-top: 8px;">Video</span>
-                    </div>
-                    <div class="fab-item" style="flex-direction: column; text-align: center;" onclick="openFilePicker('document')">
-                        <i class="fas fa-file" style="font-size: 28px; color: #ff9800;"></i>
-                        <span style="margin-top: 8px;">Document</span>
-                    </div>
-                    <div class="fab-item" style="flex-direction: column; text-align: center;" onclick="openFilePicker('location')">
-                        <i class="fas fa-map-marker-alt" style="font-size: 28px; color: #e91e63;"></i>
-                        <span style="margin-top: 8px;">Location</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <input type="file" id="fileInput" style="display: none;" onchange="handleFileUpload(event)">
+<body class="h-screen overflow-hidden">
+    <div id="app" class="h-full"></div>
 
     <script>
-        // ============================================
-        // TypeGramm - Complete Social Media Application
-        // ============================================
+        // State Management
+        const state = {
+            currentUser: null,
+            users: JSON.parse(localStorage.getItem('tg_users') || '[]'),
+            chats: JSON.parse(localStorage.getItem('tg_chats') || '[]'),
+            messages: JSON.parse(localStorage.getItem('tg_messages') || '{}'),
+            friendRequests: JSON.parse(localStorage.getItem('tg_friendRequests') || '[]'),
+            friends: JSON.parse(localStorage.getItem('tg_friends') || '{}'),
+            currentChat: null,
+            currentView: 'chats',
+            theme: localStorage.getItem('tg_theme') || 'dark',
+            searchQuery: ''
+        };
 
-        // Application State
-        let currentUser = null;
-        let currentChat = null;
-        let currentTab = 'chats';
-        let settings = {};
-        let activeCall = null;
-        let callTimer = null;
-        let callDuration = 0;
-
-        // Audio Recording
-        let mediaRecorder = null;
-        let audioChunks = [];
-        let recordingStartTime = null;
-        let recordingTimer = null;
-
-        // Initialize Application
-        document.addEventListener('DOMContentLoaded', () => {
-            initializeApp();
-            setupStorageListener();
-        });
-
-        function initializeApp() {
-            loadSettings();
-            loadCustomWallpaper();
-            
-            // Check for existing session
-            const savedUser = localStorage.getItem('typegramm_currentUser');
-            if (savedUser) {
-                currentUser = JSON.parse(savedUser);
-                showMainApp();
-            }
+        function saveState() {
+            localStorage.setItem('tg_users', JSON.stringify(state.users));
+            localStorage.setItem('tg_chats', JSON.stringify(state.chats));
+            localStorage.setItem('tg_messages', JSON.stringify(state.messages));
+            localStorage.setItem('tg_friendRequests', JSON.stringify(state.friendRequests));
+            localStorage.setItem('tg_friends', JSON.stringify(state.friends));
+            localStorage.setItem('tg_theme', state.theme);
         }
 
-        function setupStorageListener() {
-            window.addEventListener('storage', (e) => {
-                if (e.key === 'typegramm_currentUser') {
-                    currentUser = JSON.parse(e.newValue);
-                    if (!currentUser) {
-                        logout();
-                    }
-                }
-                if (e.key === 'typegramm_users') {
-                    loadUsers();
-                }
-            });
+        function applyTheme() {
+            document.body.className = `h-screen overflow-hidden theme-${state.theme}`;
         }
 
-        // ============================================
-        // Authentication
-        // ============================================
-
-        function showRegister() {
-            document.getElementById('loginForm').style.display = 'none';
-            document.getElementById('registerForm').style.display = 'flex';
-        }
-
-        function showLogin() {
-            document.getElementById('registerForm').style.display = 'none';
-            document.getElementById('loginForm').style.display = 'flex';
-        }
-
-        function register() {
-            const name = document.getElementById('regName').value.trim();
-            const username = document.getElementById('regUsername').value.trim().replace('@', '');
-            const phone = document.getElementById('regPhone').value.trim();
-            const password = document.getElementById('regPassword').value;
-
-            if (!name || !username || !phone || !password) {
-                alert('Please fill in all fields');
-                return;
+        // Auth Functions
+        function register(username, displayName, password) {
+            if (state.users.find(u => u.username === username)) {
+                return { error: 'Username already exists' };
             }
-
-            if (password.length < 6) {
-                alert('Password must be at least 6 characters');
-                return;
-            }
-
-            const users = getUsers();
-            
-            if (users.find(u => u.username === username)) {
-                alert('Username already taken');
-                return;
-            }
-
-            if (users.find(u => u.phone === phone)) {
-                alert('Phone number already registered');
-                return;
-            }
-
-            const newUser = {
-                id: 'user_' + Date.now(),
-                name,
+            const user = {
+                id: Date.now().toString(),
                 username,
-                phone,
+                displayName,
                 password,
-                bio: '',
-                avatar: null,
-                online: true,
-                createdAt: new Date().toISOString(),
-                friends: [],
-                groups: [],
-                channels: [],
-                incomingRequests: [],
-                outgoingRequests: [],
-                settings: getDefaultSettings()
+                avatar: displayName.charAt(0).toUpperCase(),
+                status: 'online',
+                createdAt: new Date().toISOString()
             };
-
-            users.push(newUser);
-            saveUsers(users);
-
-            currentUser = newUser;
-            localStorage.setItem('typegramm_currentUser', JSON.stringify(currentUser));
-            
-            showMainApp();
+            state.users.push(user);
+            state.friends[user.id] = [];
+            saveState();
+            return { user };
         }
 
-        function login() {
-            const username = document.getElementById('loginUsername').value.trim().replace('@', '');
-            const password = document.getElementById('loginPassword').value;
-
-            if (!username || !password) {
-                alert('Please enter username and password');
-                return;
-            }
-
-            const users = getUsers();
-            const user = users.find(u => (u.username === username || u.phone === username) && u.password === password);
-
-            if (!user) {
-                alert('Invalid credentials');
-                return;
-            }
-
-            user.online = true;
-            saveUsers(getUsers());
-
-            currentUser = user;
-            localStorage.setItem('typegramm_currentUser', JSON.stringify(currentUser));
-
-            showMainApp();
+        function login(username, password) {
+            const user = state.users.find(u => u.username === username && u.password === password);
+            if (!user) return { error: 'Invalid credentials' };
+            state.currentUser = user;
+            localStorage.setItem('tg_currentUser', user.id);
+            return { user };
         }
 
         function logout() {
-            if (currentUser) {
-                const users = getUsers();
-                const userIndex = users.findIndex(u => u.id === currentUser.id);
-                if (userIndex !== -1) {
-                    users[userIndex].online = false;
-                    saveUsers(users);
-                }
-            }
-
-            currentUser = null;
-            localStorage.removeItem('typegramm_currentUser');
-
-            document.getElementById('authScreen').style.display = 'flex';
-            document.getElementById('mainApp').style.display = 'none';
-            document.getElementById('userDropdown').classList.remove('active');
+            state.currentUser = null;
+            state.currentChat = null;
+            localStorage.removeItem('tg_currentUser');
+            render();
         }
 
-        function showMainApp() {
-            document.getElementById('authScreen').style.display = 'none';
-            document.getElementById('mainApp').style.display = 'flex';
+        function checkAuth() {
+            const userId = localStorage.getItem('tg_currentUser');
+            if (userId) {
+                state.currentUser = state.users.find(u => u.id === userId);
+            }
+        }
+
+        // Friend Functions
+        function sendFriendRequest(username) {
+            const targetUser = state.users.find(u => u.username === username);
+            if (!targetUser) return { error: 'User not found' };
+            if (targetUser.id === state.currentUser.id) return { error: 'Cannot add yourself' };
             
-            updateCurrentUserUI();
-            renderChatList();
-            updateRequestCount();
-            loadSettings();
+            const existingRequest = state.friendRequests.find(
+                r => (r.from === state.currentUser.id && r.to === targetUser.id) ||
+                     (r.from === targetUser.id && r.to === state.currentUser.id)
+            );
+            if (existingRequest) return { error: 'Request already exists' };
+            
+            const friends = state.friends[state.currentUser.id] || [];
+            if (friends.includes(targetUser.id)) return { error: 'Already friends' };
+            
+            state.friendRequests.push({
+                id: Date.now().toString(),
+                from: state.currentUser.id,
+                to: targetUser.id,
+                status: 'pending',
+                createdAt: new Date().toISOString()
+            });
+            saveState();
+            return { success: true };
         }
 
-        function updateCurrentUserUI() {
-            if (currentUser) {
-                const initial = currentUser.name.charAt(0).toUpperCase();
-                document.getElementById('avatarInitial').textContent = initial;
-                document.getElementById('currentUserAvatar').innerHTML = currentUser.avatar 
-                    ? `<img src="${currentUser.avatar}" class="avatar-img" alt="Avatar">`
-                    : `<span>${initial}</span>`;
+        function acceptFriendRequest(requestId) {
+            const request = state.friendRequests.find(r => r.id === requestId);
+            if (!request) return;
+            
+            if (!state.friends[request.from]) state.friends[request.from] = [];
+            if (!state.friends[request.to]) state.friends[request.to] = [];
+            
+            state.friends[request.from].push(request.to);
+            state.friends[request.to].push(request.from);
+            
+            // Create direct chat
+            const chatId = [request.from, request.to].sort().join('_');
+            if (!state.chats.find(c => c.id === chatId)) {
+                state.chats.push({
+                    id: chatId,
+                    type: 'direct',
+                    participants: [request.from, request.to],
+                    createdAt: new Date().toISOString()
+                });
+                state.messages[chatId] = [];
             }
+            
+            state.friendRequests = state.friendRequests.filter(r => r.id !== requestId);
+            saveState();
         }
 
-        // ============================================
-        // Data Management
-        // ============================================
-
-        function getUsers() {
-            return JSON.parse(localStorage.getItem('typegramm_users') || '[]');
+        function declineFriendRequest(requestId) {
+            state.friendRequests = state.friendRequests.filter(r => r.id !== requestId);
+            saveState();
         }
 
-        function saveUsers(users) {
-            localStorage.setItem('typegramm_users', JSON.stringify(users));
-        }
-
-        function getDefaultSettings() {
-            return {
-                theme: 'default',
-                wallpaper: 'default',
-                notifications: true,
-                sound: true,
-                vibration: true,
-                lastSeen: 'everyone',
-                groupAdd: 'everyone',
-                twoFactor: false,
-                autoDownload: true
+        // Group/Channel Functions
+        function createGroup(name, description, isChannel = false) {
+            const group = {
+                id: Date.now().toString(),
+                type: isChannel ? 'channel' : 'group',
+                name,
+                description,
+                avatar: name.charAt(0).toUpperCase(),
+                owner: state.currentUser.id,
+                admins: [state.currentUser.id],
+                members: [state.currentUser.id],
+                createdAt: new Date().toISOString()
             };
+            state.chats.push(group);
+            state.messages[group.id] = [];
+            saveState();
+            return group;
         }
 
-        function loadSettings() {
-            if (currentUser) {
-                settings = { ...getDefaultSettings(), ...currentUser.settings };
-                
-                document.getElementById('notifyToggle').checked = settings.notifications;
-                document.getElementById('soundToggle').checked = settings.sound;
-                document.getElementById('vibrateToggle').checked = settings.vibration;
-                document.getElementById('lastSeenPrivacy').value = settings.lastSeen || 'everyone';
-                document.getElementById('groupPrivacy').value = settings.groupAdd || 'everyone';
-                document.getElementById('twoFactorToggle').checked = settings.twoFactor;
-                document.getElementById('autoDownloadToggle').checked = settings.autoDownload;
-
-                selectTheme(settings.theme);
-                selectWallpaper(settings.wallpaper);
-            }
-        }
-
-        function updateSetting(key, value) {
-            if (currentUser) {
-                const users = getUsers();
-                const userIndex = users.findIndex(u => u.id === currentUser.id);
-                if (userIndex !== -1) {
-                    users[userIndex].settings[key] = value;
-                    saveUsers(users);
-                    currentUser = users[userIndex];
-                    settings[key] = value;
-                }
-            }
-        }
-
-        function updatePrivacy(key, value) {
-            updateSetting(key, value);
-        }
-
-        // ============================================
-        // Theme & Wallpaper
-        // ============================================
-
-        function selectTheme(themeName) {
-            document.body.className = `${themeName}-theme`;
+        function addMemberToGroup(groupId, username) {
+            const group = state.chats.find(c => c.id === groupId);
+            const user = state.users.find(u => u.username === username);
+            if (!group || !user) return { error: 'Group or user not found' };
             
-            document.querySelectorAll('.theme-option').forEach(option => {
-                option.classList.toggle('selected', option.dataset.theme === themeName);
-            });
-
-            if (currentUser) {
-                updateSetting('theme', themeName);
-            }
+            const friends = state.friends[state.currentUser.id] || [];
+            if (!friends.includes(user.id)) return { error: 'User must be your friend first' };
+            
+            if (group.members.includes(user.id)) return { error: 'User already in group' };
+            
+            group.members.push(user.id);
+            saveState();
+            return { success: true };
         }
 
-        function selectWallpaper(wallpaperName) {
-            const chatArea = document.getElementById('mainChat');
-            document.querySelectorAll('.wallpaper-option').forEach(opt => {
-                opt.classList.remove('selected');
-            });
-
-            if (wallpaperName === 'custom') {
-                document.querySelector('.wallpaper-option.wallpaper-custom').classList.add('selected');
-                document.getElementById('customWallpaperInput').click();
-                return;
+        function leaveGroup(groupId) {
+            const group = state.chats.find(c => c.id === groupId);
+            if (!group) return;
+            group.members = group.members.filter(m => m !== state.currentUser.id);
+            if (group.members.length === 0) {
+                state.chats = state.chats.filter(c => c.id !== groupId);
+                delete state.messages[groupId];
             }
-
-            document.querySelector(`.wallpaper-option.wallpaper-${wallpaperName}`)?.classList.add('selected');
-            
-            // Remove custom wallpaper class if present
-            chatArea.classList.remove('wallpaper-custom');
-            
-            if (currentUser) {
-                updateSetting('wallpaper', wallpaperName);
-            }
+            saveState();
         }
 
-        function uploadCustomWallpaper(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const chatArea = document.getElementById('mainChat');
-                    chatArea.style.setProperty('--custom-wallpaper', `url(${e.target.result})`);
-                    chatArea.classList.add('wallpaper-custom');
-                    document.querySelector('.wallpaper-option.wallpaper-custom').classList.add('selected');
+        // Message Functions
+        function sendMessage(chatId, text) {
+            if (!text.trim()) return;
+            const message = {
+                id: Date.now().toString(),
+                chatId,
+                senderId: state.currentUser.id,
+                text,
+                createdAt: new Date().toISOString()
+            };
+            if (!state.messages[chatId]) state.messages[chatId] = [];
+            state.messages[chatId].push(message);
+            saveState();
+            return message;
+        }
+
+        // Render Functions
+        function render() {
+            applyTheme();
+            const app = document.getElementById('app');
+            if (!state.currentUser) {
+                app.innerHTML = renderAuth();
+            } else {
+                app.innerHTML = renderMain();
+            }
+            attachEventListeners();
+        }
+
+        function renderAuth() {
+            return `
+                <div class="h-full flex items-center justify-center bg-secondary">
+                    <div class="bg-primary p-8 rounded-2xl shadow-2xl w-full max-w-md">
+                        <div class="text-center mb-8">
+                            <div class="w-20 h-20 bg-accent rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                </svg>
+                            </div>
+                            <h1 class="text-3xl font-bold text-primary">TypeGramm</h1>
+                            <p class="text-secondary mt-2">Connect with friends and groups</p>
+                        </div>
+                        
+                        <div id="authForm">
+                            <div id="loginForm">
+                                <input type="text" id="loginUsername" placeholder="Username" 
+                                    class="w-full p-3 rounded-lg mb-3 border-0 focus:ring-2 focus:ring-blue-500 outline-none">
+                                <input type="password" id="loginPassword" placeholder="Password" 
+                                    class="w-full p-3 rounded-lg mb-4 border-0 focus:ring-2 focus:ring-blue-500 outline-none">
+                                <button id="loginBtn" class="w-full bg-accent text-white p-3 rounded-lg font-semibold hover:opacity-90 transition">
+                                    Sign In
+                                </button>
+                                <p class="text-center mt-4 text-secondary">
+                                    Don't have an account? <button id="showRegister" class="text-accent hover:underline">Sign Up</button>
+                                </p>
+                            </div>
+                            
+                            <div id="registerForm" class="hidden">
+                                <input type="text" id="regUsername" placeholder="Username" 
+                                    class="w-full p-3 rounded-lg mb-3 border-0 focus:ring-2 focus:ring-blue-500 outline-none">
+                                <input type="text" id="regDisplayName" placeholder="Display Name" 
+                                    class="w-full p-3 rounded-lg mb-3 border-0 focus:ring-2 focus:ring-blue-500 outline-none">
+                                <input type="password" id="regPassword" placeholder="Password" 
+                                    class="w-full p-3 rounded-lg mb-4 border-0 focus:ring-2 focus:ring-blue-500 outline-none">
+                                <button id="registerBtn" class="w-full bg-accent text-white p-3 rounded-lg font-semibold hover:opacity-90 transition">
+                                    Create Account
+                                </button>
+                                <p class="text-center mt-4 text-secondary">
+                                    Already have an account? <button id="showLogin" class="text-accent hover:underline">Sign In</button>
+                                </p>
+                            </div>
+                        </div>
+                        <p id="authError" class="text-red-500 text-center mt-3 hidden"></p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderMain() {
+            return `
+                <div class="h-full flex">
+                    <!-- Sidebar -->
+                    <div class="w-80 bg-primary border-r border-theme flex flex-col">
+                        <!-- Header -->
+                        <div class="p-4 flex items-center justify-between border-b border-theme">
+                            <button id="menuBtn" class="p-2 hover:bg-tertiary rounded-lg transition">
+                                <svg class="w-6 h-6 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                                </svg>
+                            </button>
+                            <h1 class="text-lg font-semibold text-primary">TypeGramm</h1>
+                            <button id="newChatBtn" class="p-2 hover:bg-tertiary rounded-lg transition">
+                                <svg class="w-6 h-6 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <!-- Search -->
+                        <div class="p-3">
+                            <input type="text" id="searchInput" placeholder="Search" 
+                                class="w-full p-2.5 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        
+                        <!-- Navigation Tabs -->
+                        <div class="flex border-b border-theme">
+                            <button class="nav-tab flex-1 py-3 text-sm font-medium ${state.currentView === 'chats' ? 'text-accent border-b-2 border-current' : 'text-secondary'}" data-view="chats">Chats</button>
+                            <button class="nav-tab flex-1 py-3 text-sm font-medium ${state.currentView === 'friends' ? 'text-accent border-b-2 border-current' : 'text-secondary'}" data-view="friends">Friends</button>
+                            <button class="nav-tab flex-1 py-3 text-sm font-medium ${state.currentView === 'requests' ? 'text-accent border-b-2 border-current' : 'text-secondary'}" data-view="requests">
+                                Requests
+                                ${getPendingRequests().length > 0 ? `<span class="ml-1 bg-accent text-white text-xs px-1.5 py-0.5 rounded-full">${getPendingRequests().length}</span>` : ''}
+                            </button>
+                        </div>
+                        
+                        <!-- Content -->
+                        <div class="flex-1 overflow-y-auto scrollbar-thin">
+                            ${state.currentView === 'chats' ? renderChatList() : ''}
+                            ${state.currentView === 'friends' ? renderFriendsList() : ''}
+                            ${state.currentView === 'requests' ? renderRequestsList() : ''}
+                        </div>
+                    </div>
                     
-                    localStorage.setItem('typegramm_customWallpaper', e.target.result);
-                    if (currentUser) {
-                        updateSetting('wallpaper', 'custom');
-                    }
-                };
-                reader.readAsDataURL(file);
-            }
+                    <!-- Main Content -->
+                    <div class="flex-1 flex flex-col bg-secondary">
+                        ${state.currentChat ? renderChatArea() : renderEmptyState()}
+                    </div>
+                </div>
+                
+                <!-- Modals -->
+                ${renderModals()}
+            `;
         }
 
-        function loadCustomWallpaper() {
-            const customWallpaper = localStorage.getItem('typegramm_customWallpaper');
-            if (customWallpaper) {
-                const chatArea = document.getElementById('mainChat');
-                chatArea.style.setProperty('--custom-wallpaper', `url(${customWallpaper})`);
-            }
+        function getPendingRequests() {
+            return state.friendRequests.filter(r => r.to === state.currentUser.id && r.status === 'pending');
         }
 
-        // ============================================
-        // Navigation
-        // ============================================
-
-        function switchTab(tab) {
-            currentTab = tab;
-            document.querySelectorAll('.nav-tab').forEach(t => {
-                t.classList.toggle('active', t.dataset.tab === tab);
+        function renderChatList() {
+            const userChats = state.chats.filter(chat => {
+                if (chat.type === 'direct') {
+                    return chat.participants.includes(state.currentUser.id);
+                }
+                return chat.members && chat.members.includes(state.currentUser.id);
             });
-            renderChatList();
-        }
 
-        function toggleDropdown() {
-            document.getElementById('userDropdown').classList.toggle('active');
-        }
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.dropdown')) {
-                document.getElementById('userDropdown').classList.remove('active');
+            if (userChats.length === 0) {
+                return `<div class="p-4 text-center text-secondary">No chats yet. Add friends or create a group!</div>`;
             }
-            if (!e.target.closest('#fabBtn') && !e.target.closest('#fabMenu')) {
-                document.getElementById('fabMenu').classList.remove('active');
-            }
-        });
 
-        function toggleFabMenu() {
-            document.getElementById('fabMenu').classList.toggle('active');
+            return userChats.map(chat => {
+                const isActive = state.currentChat?.id === chat.id;
+                let name, avatar, lastMessage;
+                
+                if (chat.type === 'direct') {
+                    const otherId = chat.participants.find(p => p !== state.currentUser.id);
+                    const other = state.users.find(u => u.id === otherId);
+                    name = other?.displayName || 'Unknown';
+                    avatar = other?.avatar || '?';
+                } else {
+                    name = chat.name;
+                    avatar = chat.avatar;
+                }
+                
+                const messages = state.messages[chat.id] || [];
+                lastMessage = messages[messages.length - 1];
+                
+                return `
+                    <div class="chat-item p-3 flex items-center gap-3 cursor-pointer ${isActive ? 'active' : ''}" data-chat-id="${chat.id}">
+                        <div class="w-12 h-12 rounded-full bg-accent flex items-center justify-center text-white font-semibold flex-shrink-0">
+                            ${avatar}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-center">
+                                <span class="font-medium text-primary truncate">${name}</span>
+                                <span class="text-xs text-secondary">${lastMessage ? formatTime(lastMessage.createdAt) : ''}</span>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                ${chat.type !== 'direct' ? `<span class="text-xs text-secondary">${chat.type === 'channel' ? '📢' : '👥'}</span>` : ''}
+                                <p class="text-sm text-secondary truncate">${lastMessage ? lastMessage.text : 'No messages'}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
 
-        // ============================================
-        // Chat List
-        // ============================================
+        function renderFriendsList() {
+            const friendIds = state.friends[state.currentUser.id] || [];
+            const friends = friendIds.map(id => state.users.find(u => u.id === id)).filter(Boolean);
+            
+            if (friends.length === 0) {
+                return `<div class="p-4 text-center text-secondary">No friends yet. Send a friend request!</div>`;
+            }
+            
+            return friends.map(friend => `
+                <div class="p-3 flex items-center gap-3 hover:bg-tertiary cursor-pointer" data-friend-id="${friend.id}">
+                    <div class="relative">
+                        <div class="w-12 h-12 rounded-full bg-accent flex items-center justify-center text-white font-semibold">
+                            ${friend.avatar}
+                        </div>
+                        <div class="absolute bottom-0 right-0 w-3.5 h-3.5 online-dot rounded-full border-2 border-primary"></div>
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-medium text-primary">${friend.displayName}</div>
+                        <div class="text-sm text-secondary">@${friend.username}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
 
-        function renderChatList(searchQuery = '') {
-            const chatList = document.getElementById('chatList');
-            let items = [];
+        function renderRequestsList() {
+            const incoming = state.friendRequests.filter(r => r.to === state.currentUser.id && r.status === 'pending');
+            const outgoing = state.friendRequests.filter(r => r.from === state.currentUser.id && r.status === 'pending');
+            
+            let html = '';
+            
+            if (incoming.length > 0) {
+                html += `<div class="p-3 text-sm font-semibold text-secondary">Incoming Requests</div>`;
+                html += incoming.map(req => {
+                    const fromUser = state.users.find(u => u.id === req.from);
+                    return `
+                        <div class="p-3 flex items-center gap-3 hover:bg-tertiary">
+                            <div class="w-12 h-12 rounded-full bg-accent flex items-center justify-center text-white font-semibold">
+                                ${fromUser?.avatar || '?'}
+                            </div>
+                            <div class="flex-1">
+                                <div class="font-medium text-primary">${fromUser?.displayName}</div>
+                                <div class="text-sm text-secondary">@${fromUser?.username}</div>
+                            </div>
+                            <button class="accept-request px-3 py-1.5 bg-green-500 text-white text-sm rounded-lg hover:bg-green-600" data-request-id="${req.id}">Accept</button>
+                            <button class="decline-request px-3 py-1.5 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600" data-request-id="${req.id}">Decline</button>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            if (outgoing.length > 0) {
+                html += `<div class="p-3 text-sm font-semibold text-secondary mt-2">Sent Requests</div>`;
+                html += outgoing.map(req => {
+                    const toUser = state.users.find(u => u.id === req.to);
+                    return `
+                        <div class="p-3 flex items-center gap-3 hover:bg-tertiary">
+                            <div class="w-12 h-12 rounded-full bg-accent flex items-center justify-center text-white font-semibold">
+                                ${toUser?.avatar || '?'}
+                            </div>
+                            <div class="flex-1">
+                                <div class="font-medium text-primary">${toUser?.displayName}</div>
+                                <div class="text-sm text-secondary">@${toUser?.username}</div>
+                            </div>
+                            <span class="text-sm text-secondary">Pending...</span>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            if (!html) {
+                html = `<div class="p-4 text-center text-secondary">No friend requests</div>`;
+            }
+            
+            return html;
+        }
 
-            const users = getUsers();
+        function renderChatArea() {
+            const chat = state.currentChat;
+            let name, avatar, subtitle;
+            
+            if (chat.type === 'direct') {
+                const otherId = chat.participants.find(p => p !== state.currentUser.id);
+                const other = state.users.find(u => u.id === otherId);
+                name = other?.displayName || 'Unknown';
+                avatar = other?.avatar || '?';
+                subtitle = 'online';
+            } else {
+                name = chat.name;
+                avatar = chat.avatar;
+                subtitle = `${chat.members.length} members`;
+            }
+            
+            const messages = state.messages[chat.id] || [];
+            const canSend = chat.type !== 'channel' || chat.admins.includes(state.currentUser.id);
+            
+            return `
+                <!-- Chat Header -->
+                <div class="p-4 bg-primary border-b border-theme flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-white font-semibold">
+                        ${avatar}
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-semibold text-primary">${name}</div>
+                        <div class="text-sm text-secondary">${subtitle}</div>
+                    </div>
+                    ${chat.type !== 'direct' ? `
+                        <button id="groupInfoBtn" class="p-2 hover:bg-tertiary rounded-lg transition">
+                            <svg class="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </button>
+                    ` : ''}
+                </div>
+                
+                <!-- Messages -->
+                <div id="messagesContainer" class="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin">
+                    ${messages.map(msg => {
+                        const isOwn = msg.senderId === state.currentUser.id;
+                        const sender = state.users.find(u => u.id === msg.senderId);
+                        return `
+                            <div class="flex ${isOwn ? 'justify-end' : 'justify-start'}">
+                                <div class="${isOwn ? 'message-out' : 'message-in'} max-w-md px-4 py-2 rounded-2xl ${isOwn ? 'rounded-br-sm' : 'rounded-bl-sm'}">
+                                    ${chat.type !== 'direct' && !isOwn ? `<div class="text-xs text-accent font-medium mb-1">${sender?.displayName}</div>` : ''}
+                                    <p class="text-primary">${msg.text}</p>
+                                    <div class="text-xs text-secondary mt-1 text-right">${formatTime(msg.createdAt)}</div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+                
+                <!-- Input -->
+                ${canSend ? `
+                    <div class="p-4 bg-primary border-t border-theme">
+                        <div class="flex items-center gap-3">
+                            <input type="text" id="messageInput" placeholder="Write a message..." 
+                                class="flex-1 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <button id="sendBtn" class="p-3 bg-accent rounded-xl hover:opacity-90 transition">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                ` : `
+                    <div class="p-4 bg-primary border-t border-theme text-center text-secondary">
+                        Only admins can post in this channel
+                    </div>
+                `}
+            `;
+        }
 
-            if (currentTab === 'chats') {
-                // Get friends
-                if (currentUser && currentUser.friends) {
-                    items = currentUser.friends.map(friendId => {
-                        const friend = users.find(u => u.id === friendId);
-                        if (!friend) return null;
-                        
-                        const messages = getMessages(currentUser.id, friendId);
-                        const lastMsg = messages[messages.length - 1];
-                        
-                        return {
-                            id: friendId,
-                            type: 'user',
-                            name: friend.name,
-                            username: friend.username,
-                            avatar: friend.avatar,
-                            online: friend.online,
-                            lastMessage: lastMsg ? lastMsg.text : 'No messages yet',
-                            time: lastMsg ? formatTime(lastMsg.timestamp) : '',
-                            unread: 0,
-                            timestamp: lastMsg ? lastMsg.timestamp : 0
-                        };
-                    }).filter(Boolean);
+        function renderEmptyState() {
+            return `
+                <div class="flex-1 flex items-center justify-center">
+                    <div class="text-center">
+                        <div class="w-24 h-24 bg-tertiary rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-12 h-12 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                            </svg>
+                        </div>
+                        <h2 class="text-xl font-semibold text-primary mb-2">Select a chat</h2>
+                        <p class="text-secondary">Choose a conversation to start messaging</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderModals() {
+            return `
+                <!-- Menu Modal -->
+                <div id="menuModal" class="fixed inset-0 modal-overlay hidden z-50">
+                    <div class="absolute left-0 top-0 h-full w-72 bg-primary shadow-xl transform transition-transform">
+                        <div class="p-4 bg-accent">
+                            <div class="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center text-white text-2xl font-bold mb-3">
+                                ${state.currentUser?.avatar}
+                            </div>
+                            <div class="text-white font-semibold">${state.currentUser?.displayName}</div>
+                            <div class="text-white/70 text-sm">@${state.currentUser?.username}</div>
+                        </div>
+                        <div class="py-2">
+                            <button id="settingsBtn" class="w-full px-4 py-3 flex items-center gap-3 hover:bg-tertiary text-primary">
+                                <svg class="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                                Settings
+                            </button>
+                            <button id="logoutBtn" class="w-full px-4 py-3 flex items-center gap-3 hover:bg-tertiary text-red-500">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                                </svg>
+                                Log Out
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Settings Modal -->
+                <div id="settingsModal" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center">
+                    <div class="bg-primary rounded-xl shadow-xl w-full max-w-md mx-4 max-h-[80vh] overflow-y-auto">
+                        <div class="p-4 border-b border-theme flex justify-between items-center">
+                            <h2 class="text-lg font-semibold text-primary">Settings</h2>
+                            <button id="closeSettings" class="p-1 hover:bg-tertiary rounded-lg">
+                                <svg class="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="text-sm font-semibold text-secondary mb-3">Theme</h3>
+                            <div class="grid grid-cols-2 gap-3">
+                                <button class="theme-option p-4 rounded-xl border-2 ${state.theme === 'dark' ? 'border-accent' : 'border-theme'}" data-theme="dark">
+                                    <div class="w-full h-12 rounded-lg bg-[#17212b] mb-2"></div>
+                                    <span class="text-sm text-primary">Dark</span>
+                                </button>
+                                <button class="theme-option p-4 rounded-xl border-2 ${state.theme === 'light' ? 'border-accent' : 'border-theme'}" data-theme="light">
+                                    <div class="w-full h-12 rounded-lg bg-[#ffffff] border mb-2"></div>
+                                    <span class="text-sm text-primary">Light</span>
+                                </button>
+                                <button class="theme-option p-4 rounded-xl border-2 ${state.theme === 'purple' ? 'border-accent' : 'border-theme'}" data-theme="purple">
+                                    <div class="w-full h-12 rounded-lg bg-[#1e1a2e] mb-2"></div>
+                                    <span class="text-sm text-primary">Purple</span>
+                                </button>
+                                <button class="theme-option p-4 rounded-xl border-2 ${state.theme === 'green' ? 'border-accent' : 'border-theme'}" data-theme="green">
+                                    <div class="w-full h-12 rounded-lg bg-[#1a2e1e] mb-2"></div>
+                                    <span class="text-sm text-primary">Green</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- New Chat Modal -->
+                <div id="newChatModal" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center">
+                    <div class="bg-primary rounded-xl shadow-xl w-full max-w-md mx-4">
+                        <div class="p-4 border-b border-theme flex justify-between items-center">
+                            <h2 class="text-lg font-semibold text-primary">New</h2>
+                            <button id="closeNewChat" class="p-1 hover:bg-tertiary rounded-lg">
+                                <svg class="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="p-4 space-y-3">
+                            <button id="addFriendOption" class="w-full p-3 flex items-center gap-3 rounded-xl hover:bg-tertiary transition">
+                                <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                                    </svg>
+                                </div>
+                                <span class="text-primary font-medium">Add Friend</span>
+                            </button>
+                            <button id="createGroupOption" class="w-full p-3 flex items-center gap-3 rounded-xl hover:bg-tertiary transition">
+                                <div class="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                    </svg>
+                                </div>
+                                <span class="text-primary font-medium">New Group</span>
+                            </button>
+                            <button id="createChannelOption" class="w-full p-3 flex items-center gap-3 rounded-xl hover:bg-tertiary transition">
+                                <div class="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/>
+                                    </svg>
+                                </div>
+                                <span class="text-primary font-medium">New Channel</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Add Friend Modal -->
+                <div id="addFriendModal" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center">
+                    <div class="bg-primary rounded-xl shadow-xl w-full max-w-md mx-4">
+                        <div class="p-4 border-b border-theme flex justify-between items-center">
+                            <h2 class="text-lg font-semibold text-primary">Add Friend</h2>
+                            <button id="closeAddFriend" class="p-1 hover:bg-tertiary rounded-lg">
+                                <svg class="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="p-4">
+                            <p class="text-secondary text-sm mb-3">Enter the username of the person you want to add as a friend.</p>
+                            <input type="text" id="friendUsername" placeholder="Username" 
+                                class="w-full p-3 rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <p id="friendError" class="text-red-500 text-sm mb-3 hidden"></p>
+                            <button id="sendFriendRequest" class="w-full bg-accent text-white p-3 rounded-lg font-semibold hover:opacity-90 transition">
+                                Send Friend Request
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Create Group Modal -->
+                <div id="createGroupModal" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center">
+                    <div class="bg-primary rounded-xl shadow-xl w-full max-w-md mx-4">
+                        <div class="p-4 border-b border-theme flex justify-between items-center">
+                            <h2 class="text-lg font-semibold text-primary" id="createGroupTitle">New Group</h2>
+                            <button id="closeCreateGroup" class="p-1 hover:bg-tertiary rounded-lg">
+                                <svg class="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="p-4">
+                            <input type="text" id="groupName" placeholder="Group name" 
+                                class="w-full p-3 rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <textarea id="groupDescription" placeholder="Description (optional)" rows="3"
+                                class="w-full p-3 rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
+                            <input type="hidden" id="isChannel" value="false">
+                            <button id="createGroupBtn" class="w-full bg-accent text-white p-3 rounded-lg font-semibold hover:opacity-90 transition">
+                                Create
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Group Info Modal -->
+                <div id="groupInfoModal" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center">
+                    <div class="bg-primary rounded-xl shadow-xl w-full max-w-md mx-4 max-h-[80vh] overflow-y-auto">
+                        <div class="p-4 border-b border-theme flex justify-between items-center">
+                            <h2 class="text-lg font-semibold text-primary">Group Info</h2>
+                            <button id="closeGroupInfo" class="p-1 hover:bg-tertiary rounded-lg">
+                                <svg class="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div id="groupInfoContent" class="p-4"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function formatTime(dateStr) {
+            const date = new Date(dateStr);
+            const now = new Date();
+            const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+            
+            if (diffDays === 0) {
+                return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            } else if (diffDays < 7) {
+                return date.toLocaleDateString([], { weekday: 'short' });
+            } else {
+                return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+            }
+        }
+
+        function attachEventListeners() {
+            // Auth Events
+            document.getElementById('showRegister')?.addEventListener('click', () => {
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('registerForm').classList.remove('hidden');
+            });
+            
+            document.getElementById('showLogin')?.addEventListener('click', () => {
+                document.getElementById('registerForm').classList.add('hidden');
+                document.getElementById('loginForm').classList.remove('hidden');
+            });
+            
+            document.getElementById('loginBtn')?.addEventListener('click', () => {
+                const username = document.getElementById('loginUsername').value;
+                const password = document.getElementById('loginPassword').value;
+                const result = login(username, password);
+                if (result.error) {
+                    document.getElementById('authError').textContent = result.error;
+                    document.getElementById('authError').classList.remove('hidden');
+                } else {
+                    render();
                 }
-            } else if (currentTab === 'groups') {
-                // Get groups
-                if (currentUser && currentUser.groups) {
-                    items = currentUser.groups.map(groupId => {
-                        const group = getGroup(groupId);
-                        if (!group) return null;
-                        
-                        const lastMsg = group.messages ? group.messages[group.messages.length - 1] : null;
-                        
-                        return {
-                            id: groupId,
-                            type: 'group',
-                            name: group.name,
-                            members: group.members?.length || 0,
-                            lastMessage: lastMsg ? (lastMsg.outgoing ? 'You: ' : '') + lastMsg.text : 'No messages yet',
-                            time: lastMsg ? formatTime(lastMsg.timestamp) : '',
-                            unread: 0,
-                            timestamp: lastMsg ? lastMsg.timestamp : 0
-                        };
-                    }).filter(Boolean);
+            });
+            
+            document.getElementById('registerBtn')?.addEventListener('click', () => {
+                const username = document.getElementById('regUsername').value;
+                const displayName = document.getElementById('regDisplayName').value;
+                const password = document.getElementById('regPassword').value;
+                const result = register(username, displayName, password);
+                if (result.error) {
+                    document.getElementById('authError').textContent = result.error;
+                    document.getElementById('authError').classList.remove('hidden');
+                } else {
+                    login(username, password);
+                    render();
                 }
-            } else if (currentTab === 'channels') {
-                // Get channels
-                if (currentUser && currentUser.channels) {
-                    items = currentUser.channels.map(channelId => {
-                        const channel = getChannel(channelId);
-                        if (!channel) return null;
+            });
+            
+            // Navigation
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    state.currentView = tab.dataset.view;
+                    render();
+                });
+            });
+            
+            // Chat selection
+            document.querySelectorAll('.chat-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const chatId = item.dataset.chatId;
+                    state.currentChat = state.chats.find(c => c.id === chatId);
+                    render();
+                    scrollToBottom();
+                });
+            });
+            
+            // Friend click - open chat
+            document.querySelectorAll('[data-friend-id]').forEach(item => {
+                item.addEventListener('click', () => {
+                    const friendId = item.dataset.friendId;
+                    const chatId = [state.currentUser.id, friendId].sort().join('_');
+                    state.currentChat = state.chats.find(c => c.id === chatId);
+                    if (state.currentChat) {
+                        render();
+                        scrollToBottom();
+                    }
+                });
+            });
+            
+            // Friend requests
+            document.querySelectorAll('.accept-request').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    acceptFriendRequest(btn.dataset.requestId);
+                    render();
+                });
+            });
+            
+            document.querySelectorAll('.decline-request').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    declineFriendRequest(btn.dataset.requestId);
+                    render();
+                });
+            });
+            
+            // Send message
+            document.getElementById('sendBtn')?.addEventListener('click', sendCurrentMessage);
+            document.getElementById('messageInput')?.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendCurrentMessage();
+            });
+            
+            // Menu
+            document.getElementById('menuBtn')?.addEventListener('click', () => {
+                document.getElementById('menuModal').classList.remove('hidden');
+            });
+            
+            document.getElementById('menuModal')?.addEventListener('click', (e) => {
+                if (e.target.id === 'menuModal') {
+                    document.getElementById('menuModal').classList.add('hidden');
+                }
+            });
+            
+            document.getElementById('logoutBtn')?.addEventListener('click', logout);
+            
+            document.getElementById('settingsBtn')?.addEventListener('click', () => {
+                document.getElementById('menuModal').classList.add('hidden');
+                document.getElementById('settingsModal').classList.remove('hidden');
+            });
+            
+            document.getElementById('closeSettings')?.addEventListener('click', () => {
+                document.getElementById('settingsModal').classList.add('hidden');
+            });
+            
+            document.getElementById('settingsModal')?.addEventListener('click', (e) => {
+                if (e.target.id === 'settingsModal') {
+                    document.getElementById('settingsModal').classList.add('hidden');
+                }
+            });
+            
+            // Theme selection
+            document.querySelectorAll('.theme-option').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    state.theme = btn.dataset.theme;
+                    saveState();
+                    render();
+                });
+            });
+            
+            // New Chat Modal
+            document.getElementById('newChatBtn')?.addEventListener('click', () => {
+                document.getElementById('newChatModal').classList.remove('hidden');
+            });
+            
+            document.getElementById('closeNewChat')?.addEventListener('click', () => {
+                document.getElementById('newChatModal').classList.add('hidden');
+            });
+            
+            document.getElementById('newChatModal')?.addEventListener('click', (e) => {
+                if (e.target.id === 'newChatModal') {
+                    document.getElementById('newChatModal').classList.add('hidden');
+                }
+            });
+            
+            // Add Friend
+            document.getElementById('addFriendOption')?.addEventListener('click', () => {
+                document.getElementById('newChatModal').classList.add('hidden');
+                document.getElementById('addFriendModal').classList.remove('hidden');
+            });
+            
+            document.getElementById('closeAddFriend')?.addEventListener('click', () => {
+                document.getElementById('addFriendModal').classList.add('hidden');
+            });
+            
+            document.getElementById('addFriendModal')?.addEventListener('click', (e) => {
+                if (e.target.id === 'addFriendModal') {
+                    document.getElementById('addFriendModal').classList.add('hidden');
+                }
+            });
+            
+            document.getElementById('sendFriendRequest')?.addEventListener('click', () => {
+                const username = document.getElementById('friendUsername').value;
+                const result = sendFriendRequest(username);
+                if (result.error) {
+                    document.getElementById('friendError').textContent = result.error;
+                    document.getElementById('friendError').classList.remove('hidden');
+                } else {
+                    document.getElementById('addFriendModal').classList.add('hidden');
+                    document.getElementById('friendUsername').value = '';
+                    state.currentView = 'requests';
+                    render();
+                }
+            });
+            
+            // Create Group
+            document.getElementById('createGroupOption')?.addEventListener('click', () => {
+                document.getElementById('newChatModal').classList.add('hidden');
+                document.getElementById('createGroupTitle').textContent = 'New Group';
+                document.getElementById('isChannel').value = 'false';
+                document.getElementById('createGroupModal').classList.remove('hidden');
+            });
+            
+            document.getElementById('createChannelOption')?.addEventListener('click', () => {
+                document.getElementById('newChatModal').classList.add('hidden');
+                document.getElementById('createGroupTitle').textContent = 'New Channel';
+                document.getElementById('isChannel').value = 'true';
+                document.getElementById('createGroupModal').classList.remove('hidden');
+            });
+            
+            document.getElementById('closeCreateGroup')?.addEventListener('click', () => {
+                document.getElementById('createGroupModal').classList.add('hidden');
+            });
+            
+            document.getElementById('createGroupModal')?.addEventListener('click', (e) => {
+                if (e.target.id === 'createGroupModal') {
+                    document.getElementById('createGroupModal').classList.add('hidden');
+                }
+            });
+            
+            document.getElementById('createGroupBtn')?.addEventListener('click', () => {
+                const name = document.getElementById('groupName').value;
+                const description = document.getElementById('groupDescription').value;
+                const isChannel = document.getElementById('isChannel').value === 'true';
+                if (name.trim()) {
+                    const group = createGroup(name, description, isChannel);
+                    document.getElementById('createGroupModal').classList.add('hidden');
+                    document.getElementById('groupName').value = '';
+                    document.getElementById('groupDescription').value = '';
+                    state.currentChat = group;
+                    render();
+                }
+            });
+            
+            // Group Info
+            document.getElementById('groupInfoBtn')?.addEventListener('click', () => {
+                const chat = state.currentChat;
+                const members = chat.members.map(id => state.users.find(u => u.id === id)).filter(Boolean);
+                const friendIds = state.friends[state.currentUser.id] || [];
+                const availableFriends = friendIds
+                    .filter(id => !chat.members.includes(id))
+                    .map(id => state.users.find(u => u.id === id))
+                    .filter(Boolean);
+                
+                document.getElementById('groupInfoContent').innerHTML = `
+                    <div class="text-center mb-4">
+                        <div class="w-20 h-20 rounded-full bg-accent flex items-center justify-center text-white text-3xl font-bold mx-auto mb-3">
+                            ${chat.avatar}
+                        </div>
+                        <h3 class="text-xl font-semibold text-primary">${chat.name}</h3>
+                        <p class="text-secondary">${chat.type === 'channel' ? 'Channel' : 'Group'} · ${chat.members.length} members</p>
+                        ${chat.description ? `<p class="text-secondary mt-2">${chat.description}</p>` : ''}
+                    </div>
+                    
+                    ${chat.admins.includes(state.currentUser.id) && availableFriends.length > 0 ? `
+                        <div class="mb-4">
+                            <h4 class="text-sm font-semibold text-secondary mb-2">Add Members</h4>
+                            <select id="addMemberSelect" class="w-full p-2 rounded-lg bg-tertiary text-primary mb-2">
+                                <option value="">Select a friend...</option>
+                                ${availableFriends.map(f => `<option value="${f.username}">${f.displayName} (@${f.username})</option>`).join('')}
+                            </select>
+                            <button id="addMemberBtn" class="w-full bg-accent text-white p-2 rounded-lg font-medium hover:opacity-90">Add Member</button>
+                        </div>
+                    ` : ''}
+                    
+                    <h4 class="text-sm font-semibold text-secondary mb-2">Members</h4>
+                    <div class="space-y-2">
+                        ${members.map(m => `
+                            <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-tertiary">
+                                <div class="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-white font-semibold">
+                                    ${m.avatar}
+                                </div>
+                                <div class="flex-1">
+                                    <div class="font-medium text-primary">${m.displayName}</div>
+                                    <div class="text-sm text-secondary">@${m.username}</div>
+                                </div>
+                                ${chat.admins.includes(m.id) ? '<span class="text-xs text-accent">Admin</span>' : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <button id="leaveGroupBtn" class="w-full mt-4 p-3 text-red-500 rounded-lg hover:bg-red-500/10 font-medium">
+                        Leave ${chat.type === 'channel' ? 'Channel' : 'Group'}
+                    </button>
+                `;
+                
+                document.getElementById('groupInfoModal').classList.remove('hidden');
+                
+                document.getElementById('addMemberBtn')?.addEventListener('click', () => {
+                    const username = document.getElementById('addMemberSelect').value;
+                    if (username) {
+                        const result = addMemberToGroup(chat.id, username);
+                        if (result.success) {
+                            render();
+                            document.getElementById('groupInfoBtn')?.click();
+                        }
+                    }
+                });
+                
+                document.getElementById('leaveGroupBtn')?.addEventListener('click', () => {
+                    leaveGroup(chat.id);
+                    state.currentChat = null;
+                    document.getElementById('groupInfoModal').classList.add('hidden');
+                    render();
+                });
+            });
+            
+            document.getElementById('closeGroupInfo')?.addEventListener('click', () => {
+                document.getElementById('groupInfoModal').classList.add('hidden');
+            });
+            
+            document.getElementById('groupInfoModal')?.addEventListener('click', (e) => {
+                if (e.target.id === 'groupInfoModal') {
+                    document.getElementById('groupInfoModal').classList.add('hidden');
+                }
+            });
+        }
+
+        function sendCurrentMessage() {
+            const input = document.getElementById('messageInput');
+            if (input && state.currentChat) {
+                sendMessage(state.currentChat.id, input.value);
+                input.value = '';
+                render();
+                scrollToBottom();
+            }
+        }
+
+        function scrollToBottom() {
+            setTimeout(() => {
+                const container = document.getElementById('messagesContainer');
+                if (container) {
+                    container.scrollTop = container.scrollHeight;
+                }
+            }, 50);
+        }
+
+        // Initialize
+        checkAuth();
+        render();
+    </script>
+</body>
+</html>
+
                        
+
