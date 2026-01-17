@@ -20,6 +20,9 @@
             --message-in: #182533;
             --online: #4dcd5e;
             --border: #1f2936;
+            --zoom: 1;
+            --chat-bg: transparent;
+            --app-bg: var(--bg-secondary);
         }
         .theme-light {
             --bg-primary: #ffffff;
@@ -57,7 +60,38 @@
             --message-in: #264030;
             --border: #356040;
         }
-        body { background: var(--bg-secondary); color: var(--text-primary); }
+        .theme-pink {
+            --bg-primary: #2e1a2a;
+            --bg-secondary: #1f1020;
+            --bg-tertiary: #402640;
+            --text-primary: #ffffff;
+            --text-secondary: #b090a8;
+            --accent: #ec4899;
+            --accent-hover: #f472b6;
+            --message-out: #be185d;
+            --message-in: #402640;
+            --border: #603560;
+        }
+        .theme-ocean {
+            --bg-primary: #1a2a2e;
+            --bg-secondary: #10202f;
+            --bg-tertiary: #264040;
+            --text-primary: #ffffff;
+            --text-secondary: #90b0b8;
+            --accent: #06b6d4;
+            --accent-hover: #22d3ee;
+            --message-out: #0891b2;
+            --message-in: #264040;
+            --border: #356060;
+        }
+        body { 
+            background: var(--app-bg); 
+            color: var(--text-primary); 
+            transform: scale(var(--zoom));
+            transform-origin: top left;
+            width: calc(100% / var(--zoom));
+            height: calc(100% / var(--zoom));
+        }
         .bg-primary { background: var(--bg-primary); }
         .bg-secondary { background: var(--bg-secondary); }
         .bg-tertiary { background: var(--bg-tertiary); }
@@ -75,15 +109,57 @@
         .scrollbar-thin::-webkit-scrollbar-thumb { background: var(--bg-tertiary); border-radius: 3px; }
         .chat-item:hover { background: var(--bg-tertiary); }
         .chat-item.active { background: var(--accent); }
-        input, textarea { background: var(--bg-tertiary); color: var(--text-primary); }
+        input, textarea, select { background: var(--bg-tertiary); color: var(--text-primary); }
         input::placeholder, textarea::placeholder { color: var(--text-secondary); }
         .modal-overlay { background: rgba(0,0,0,0.6); }
+        .chat-background {
+            background: var(--chat-bg);
+            background-size: cover;
+            background-position: center;
+        }
+        .emoji-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; }
+        .emoji-btn { font-size: 1.5rem; padding: 4px; cursor: pointer; border-radius: 4px; transition: background 0.2s; }
+        .emoji-btn:hover { background: var(--bg-tertiary); }
+        .gif-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+        .gif-item { cursor: pointer; border-radius: 8px; overflow: hidden; }
+        .gif-item img { width: 100%; height: 100px; object-fit: cover; }
+        .call-overlay { 
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+        }
+        .pulse-ring {
+            animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); opacity: 1; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+        .avatar-upload { position: relative; cursor: pointer; }
+        .avatar-upload:hover .avatar-overlay { opacity: 1; }
+        .avatar-overlay { 
+            position: absolute; inset: 0; background: rgba(0,0,0,0.5); 
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; transition: opacity 0.2s; border-radius: 50%;
+        }
     </style>
 </head>
 <body class="h-screen overflow-hidden">
     <div id="app" class="h-full"></div>
 
     <script>
+        // Emoji Data
+        const EMOJIS = {
+            'Smileys': ['😀','😃','😄','😁','😅','😂','🤣','😊','😇','🙂','😉','😌','😍','🥰','😘','😗','😋','😛','😜','🤪','😝','🤑','🤗','🤭','🤫','🤔','🤐','🤨','😐','😑','😶','😏','😒','🙄','😬','😮','🤯','😱','😨','😰','😥','😢','😭','😤','😠','😡','🤬','😈','👿','💀','☠️','💩','🤡','👹','👺','👻','👽','👾','🤖'],
+            'Gestures': ['👋','🤚','🖐️','✋','🖖','👌','🤌','🤏','✌️','🤞','🤟','🤘','🤙','👈','👉','👆','🖕','👇','☝️','👍','👎','✊','👊','🤛','🤜','👏','🙌','👐','🤲','🤝','🙏'],
+            'Hearts': ['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','❣️','💕','💞','💓','💗','💖','💘','💝','💟'],
+            'Animals': ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🐔','🐧','🐦','🐤','🦆','🦅','🦉','🦇','🐺','🐗','🐴','🦄','🐝','🐛','🦋','🐌','🐞'],
+            'Food': ['🍎','🍐','🍊','🍋','🍌','🍉','🍇','🍓','🫐','🍈','🍒','🍑','🥭','🍍','🥥','🥝','🍅','🍆','🥑','🥦','🥬','🥒','🌶️','🫑','🌽','🥕','🧄','🧅','🥔','🍠'],
+            'Activities': ['⚽','🏀','🏈','⚾','🥎','🎾','🏐','🏉','🥏','🎱','🪀','🏓','🏸','🏒','🏑','🥍','🏏','🪃','🥅','⛳','🪁','🏹','🎣','🤿','🥊','🥋','🎽','🛹','🛼','🛷'],
+            'Objects': ['⌚','📱','💻','⌨️','🖥️','🖨️','🖱️','🖲️','🕹️','🗜️','💽','💾','💿','📀','📼','📷','📸','📹','🎥','📽️','🎞️','📞','☎️','📟','📠','📺','📻','🎙️','🎚️','🎛️']
+        };
+
+        // GIF API (using Tenor)
+        const TENOR_API_KEY = 'AIzaSyAyimkuYQYF_FXVALexPuGQctUWRURdCYQ';
+        
         // State Management
         const state = {
             currentUser: null,
@@ -92,11 +168,39 @@
             messages: JSON.parse(localStorage.getItem('tg_messages') || '{}'),
             friendRequests: JSON.parse(localStorage.getItem('tg_friendRequests') || '[]'),
             friends: JSON.parse(localStorage.getItem('tg_friends') || '{}'),
+            contacts: JSON.parse(localStorage.getItem('tg_contacts') || '{}'),
             currentChat: null,
             currentView: 'chats',
             theme: localStorage.getItem('tg_theme') || 'dark',
-            searchQuery: ''
+            zoom: parseFloat(localStorage.getItem('tg_zoom') || '1'),
+            chatWallpaper: localStorage.getItem('tg_chatWallpaper') || '',
+            appBackground: localStorage.getItem('tg_appBackground') || '',
+            callSettings: JSON.parse(localStorage.getItem('tg_callSettings') || '{"whoCanCall": "everyone", "videoDefault": true}'),
+            activeCall: null,
+            showEmoji: false,
+            showGif: false,
+            gifs: [],
+            stickerPacks: JSON.parse(localStorage.getItem('tg_stickerPacks') || '[]'),
+            currentBotSession: null
         };
+
+        // Initialize bot user if not exists
+        function initBot() {
+            if (!state.users.find(u => u.username === 'StickerBot')) {
+                const bot = {
+                    id: 'bot_sticker',
+                    username: 'StickerBot',
+                    displayName: '🤖 Sticker Bot',
+                    password: '',
+                    avatar: '🤖',
+                    isBot: true,
+                    status: 'online',
+                    createdAt: new Date().toISOString()
+                };
+                state.users.push(bot);
+                saveState();
+            }
+        }
 
         function saveState() {
             localStorage.setItem('tg_users', JSON.stringify(state.users));
@@ -104,11 +208,25 @@
             localStorage.setItem('tg_messages', JSON.stringify(state.messages));
             localStorage.setItem('tg_friendRequests', JSON.stringify(state.friendRequests));
             localStorage.setItem('tg_friends', JSON.stringify(state.friends));
+            localStorage.setItem('tg_contacts', JSON.stringify(state.contacts));
             localStorage.setItem('tg_theme', state.theme);
+            localStorage.setItem('tg_zoom', state.zoom.toString());
+            localStorage.setItem('tg_chatWallpaper', state.chatWallpaper);
+            localStorage.setItem('tg_appBackground', state.appBackground);
+            localStorage.setItem('tg_callSettings', JSON.stringify(state.callSettings));
+            localStorage.setItem('tg_stickerPacks', JSON.stringify(state.stickerPacks));
         }
 
         function applyTheme() {
             document.body.className = `h-screen overflow-hidden theme-${state.theme}`;
+            document.documentElement.style.setProperty('--zoom', state.zoom);
+            if (state.appBackground) {
+                document.documentElement.style.setProperty('--app-bg', `url(${state.appBackground})`);
+                document.body.style.backgroundImage = `url(${state.appBackground})`;
+                document.body.style.backgroundSize = 'cover';
+            } else {
+                document.body.style.backgroundImage = '';
+            }
         }
 
         // Auth Functions
@@ -122,11 +240,14 @@
                 displayName,
                 password,
                 avatar: displayName.charAt(0).toUpperCase(),
+                avatarImage: null,
                 status: 'online',
+                bio: '',
                 createdAt: new Date().toISOString()
             };
             state.users.push(user);
             state.friends[user.id] = [];
+            state.contacts[user.id] = {};
             saveState();
             return { user };
         }
@@ -153,11 +274,35 @@
             }
         }
 
+        function updateProfile(updates) {
+            Object.assign(state.currentUser, updates);
+            const idx = state.users.findIndex(u => u.id === state.currentUser.id);
+            if (idx >= 0) state.users[idx] = state.currentUser;
+            saveState();
+        }
+
+        // Contact Functions
+        function addContact(userId, nickname) {
+            if (!state.contacts[state.currentUser.id]) {
+                state.contacts[state.currentUser.id] = {};
+            }
+            state.contacts[state.currentUser.id][userId] = { nickname, addedAt: new Date().toISOString() };
+            saveState();
+        }
+
+        function getContactName(userId) {
+            const contact = state.contacts[state.currentUser.id]?.[userId];
+            if (contact?.nickname) return contact.nickname;
+            const user = state.users.find(u => u.id === userId);
+            return user?.displayName || 'Unknown';
+        }
+
         // Friend Functions
         function sendFriendRequest(username) {
             const targetUser = state.users.find(u => u.username === username);
             if (!targetUser) return { error: 'User not found' };
             if (targetUser.id === state.currentUser.id) return { error: 'Cannot add yourself' };
+            if (targetUser.isBot) return { error: 'Cannot add bot as friend' };
             
             const existingRequest = state.friendRequests.find(
                 r => (r.from === state.currentUser.id && r.to === targetUser.id) ||
@@ -189,7 +334,6 @@
             state.friends[request.from].push(request.to);
             state.friends[request.to].push(request.from);
             
-            // Create direct chat
             const chatId = [request.from, request.to].sort().join('_');
             if (!state.chats.find(c => c.id === chatId)) {
                 state.chats.push({
@@ -210,6 +354,35 @@
             saveState();
         }
 
+        // Search Users
+        function searchUsers(query) {
+            if (!query.trim()) return [];
+            return state.users.filter(u => 
+                u.id !== state.currentUser.id && 
+                !u.isBot &&
+                (u.username.toLowerCase().includes(query.toLowerCase()) ||
+                 u.displayName.toLowerCase().includes(query.toLowerCase()))
+            );
+        }
+
+        // Start chat with user (without being friends - messages won't be received)
+        function startChatWithUser(userId) {
+            const chatId = [state.currentUser.id, userId].sort().join('_');
+            let chat = state.chats.find(c => c.id === chatId);
+            if (!chat) {
+                chat = {
+                    id: chatId,
+                    type: 'direct',
+                    participants: [state.currentUser.id, userId],
+                    createdAt: new Date().toISOString()
+                };
+                state.chats.push(chat);
+                state.messages[chatId] = [];
+                saveState();
+            }
+            return chat;
+        }
+
         // Group/Channel Functions
         function createGroup(name, description, isChannel = false) {
             const group = {
@@ -218,6 +391,7 @@
                 name,
                 description,
                 avatar: name.charAt(0).toUpperCase(),
+                avatarImage: null,
                 owner: state.currentUser.id,
                 admins: [state.currentUser.id],
                 members: [state.currentUser.id],
@@ -227,6 +401,14 @@
             state.messages[group.id] = [];
             saveState();
             return group;
+        }
+
+        function updateGroupAvatar(groupId, avatarImage) {
+            const group = state.chats.find(c => c.id === groupId);
+            if (group) {
+                group.avatarImage = avatarImage;
+                saveState();
+            }
         }
 
         function addMemberToGroup(groupId, username) {
@@ -256,19 +438,205 @@
         }
 
         // Message Functions
-        function sendMessage(chatId, text) {
-            if (!text.trim()) return;
+        function sendMessage(chatId, text, type = 'text', mediaUrl = null) {
+            if (!text.trim() && !mediaUrl) return;
             const message = {
                 id: Date.now().toString(),
                 chatId,
                 senderId: state.currentUser.id,
                 text,
+                type,
+                mediaUrl,
                 createdAt: new Date().toISOString()
             };
             if (!state.messages[chatId]) state.messages[chatId] = [];
             state.messages[chatId].push(message);
             saveState();
+            
+            // Bot response
+            const chat = state.chats.find(c => c.id === chatId);
+            if (chat?.type === 'direct') {
+                const otherId = chat.participants.find(p => p !== state.currentUser.id);
+                const otherUser = state.users.find(u => u.id === otherId);
+                if (otherUser?.isBot) {
+                    handleBotMessage(chatId, text);
+                }
+            }
+            
             return message;
+        }
+
+        // Bot Functions
+        function handleBotMessage(chatId, text) {
+            setTimeout(() => {
+                let response = '';
+                const cmd = text.trim().toLowerCase();
+                
+                if (cmd === '/start') {
+                    response = `👋 Welcome to StickerBot!\n\nCommands:\n/newpack <name> - Create new sticker pack\n/addgif <url> - Add GIF to current pack\n/addsticker <emoji> - Add emoji sticker\n/listpacks - List your packs\n/done - Finish current pack\n/help - Show this help`;
+                } else if (cmd === '/help') {
+                    response = `📖 StickerBot Help\n\n/newpack <name> - Start creating a new sticker pack\n/addgif <url> - Add a GIF URL to your pack\n/addsticker <emoji> - Add an emoji as sticker\n/listpacks - Show all your sticker packs\n/deletepack <name> - Delete a pack\n/done - Finish and save current pack`;
+                } else if (cmd.startsWith('/newpack ')) {
+                    const packName = text.substring(9).trim();
+                    if (packName) {
+                        state.currentBotSession = { packName, stickers: [] };
+                        response = `📦 Creating pack "${packName}"\n\nNow send me stickers!\nUse /addgif <url> or /addsticker <emoji>\nWhen done, use /done`;
+                    } else {
+                        response = '❌ Please provide a pack name: /newpack MyPack';
+                    }
+                } else if (cmd.startsWith('/addgif ')) {
+                    const url = text.substring(8).trim();
+                    if (!state.currentBotSession) {
+                        response = '❌ Start a pack first with /newpack <name>';
+                    } else if (url) {
+                        state.currentBotSession.stickers.push({ type: 'gif', url });
+                        response = `✅ Added GIF! Pack now has ${state.currentBotSession.stickers.length} sticker(s)`;
+                    }
+                } else if (cmd.startsWith('/addsticker ')) {
+                    const emoji = text.substring(12).trim();
+                    if (!state.currentBotSession) {
+                        response = '❌ Start a pack first with /newpack <name>';
+                    } else if (emoji) {
+                        state.currentBotSession.stickers.push({ type: 'emoji', content: emoji });
+                        response = `✅ Added "${emoji}"! Pack now has ${state.currentBotSession.stickers.length} sticker(s)`;
+                    }
+                } else if (cmd === '/done') {
+                    if (!state.currentBotSession) {
+                        response = '❌ No pack in progress';
+                    } else if (state.currentBotSession.stickers.length === 0) {
+                        response = '❌ Pack is empty! Add some stickers first';
+                    } else {
+                        const pack = {
+                            id: Date.now().toString(),
+                            name: state.currentBotSession.packName,
+                            creator: state.currentUser.id,
+                            stickers: state.currentBotSession.stickers,
+                            createdAt: new Date().toISOString()
+                        };
+                        state.stickerPacks.push(pack);
+                        saveState();
+                        response = `🎉 Pack "${pack.name}" created with ${pack.stickers.length} sticker(s)!`;
+                        state.currentBotSession = null;
+                    }
+                } else if (cmd === '/listpacks') {
+                    const myPacks = state.stickerPacks.filter(p => p.creator === state.currentUser.id);
+                    if (myPacks.length === 0) {
+                        response = '📭 You have no sticker packs yet.\nCreate one with /newpack <name>';
+                    } else {
+                        response = '📦 Your Sticker Packs:\n\n' + myPacks.map(p => `• ${p.name} (${p.stickers.length} stickers)`).join('\n');
+                    }
+                } else if (cmd.startsWith('/deletepack ')) {
+                    const packName = text.substring(12).trim();
+                    const packIdx = state.stickerPacks.findIndex(p => p.name.toLowerCase() === packName.toLowerCase() && p.creator === state.currentUser.id);
+                    if (packIdx >= 0) {
+                        state.stickerPacks.splice(packIdx, 1);
+                        saveState();
+                        response = `🗑️ Pack "${packName}" deleted`;
+                    } else {
+                        response = '❌ Pack not found';
+                    }
+                } else {
+                    response = "🤖 I don't understand. Try /help for commands!";
+                }
+                
+                if (response) {
+                    const botMessage = {
+                        id: Date.now().toString(),
+                        chatId,
+                        senderId: 'bot_sticker',
+                        text: response,
+                        type: 'text',
+                        createdAt: new Date().toISOString()
+                    };
+                    state.messages[chatId].push(botMessage);
+                    saveState();
+                    render();
+                    scrollToBottom();
+                }
+            }, 500);
+        }
+
+        // Start chat with bot
+        function startBotChat() {
+            const bot = state.users.find(u => u.username === 'StickerBot');
+            if (!bot) return null;
+            
+            const chatId = [state.currentUser.id, bot.id].sort().join('_');
+            let chat = state.chats.find(c => c.id === chatId);
+            if (!chat) {
+                chat = {
+                    id: chatId,
+                    type: 'direct',
+                    participants: [state.currentUser.id, bot.id],
+                    createdAt: new Date().toISOString()
+                };
+                state.chats.push(chat);
+                state.messages[chatId] = [];
+                saveState();
+            }
+            return chat;
+        }
+
+        // Call Functions
+        function canCall(userId) {
+            const targetUser = state.users.find(u => u.id === userId);
+            if (!targetUser || targetUser.isBot) return false;
+            
+            const theirSettings = state.callSettings; // In real app, would be per-user
+            if (theirSettings.whoCanCall === 'nobody') return false;
+            if (theirSettings.whoCanCall === 'contacts') {
+                const friends = state.friends[state.currentUser.id] || [];
+                return friends.includes(userId);
+            }
+            return true;
+        }
+
+        function startCall(userId, isVideo = false) {
+            const user = state.users.find(u => u.id === userId);
+            if (!user) return;
+            
+            state.activeCall = {
+                id: Date.now().toString(),
+                userId,
+                userName: getContactName(userId),
+                userAvatar: user.avatarImage || user.avatar,
+                isVideo,
+                status: 'calling',
+                startTime: null
+            };
+            render();
+        }
+
+        function acceptCall() {
+            if (state.activeCall) {
+                state.activeCall.status = 'active';
+                state.activeCall.startTime = Date.now();
+                render();
+            }
+        }
+
+        function endCall() {
+            state.activeCall = null;
+            render();
+        }
+
+        // GIF Functions
+        async function searchGifs(query) {
+            try {
+                // Using a simple GIF API simulation with placeholder GIFs
+                const gifs = [];
+                for (let i = 0; i < 8; i++) {
+                    gifs.push({
+                        id: i,
+                        url: `https://media.giphy.com/media/${['l0MYt5jPR6QX5pnqM','3o7TKMt1VVNkHV2PaE','l0HlBO7eyXzSZkJri','26ufdipQqU2lhNA4g','l3q2K5jinAlChoCLS','xT9IgzoKnwFNmISR8I','3oEjI6SIIHBdRxXI40','l0MYC0LajbaPoEADu'][i]}/giphy.gif`,
+                        preview: `https://media.giphy.com/media/${['l0MYt5jPR6QX5pnqM','3o7TKMt1VVNkHV2PaE','l0HlBO7eyXzSZkJri','26ufdipQqU2lhNA4g','l3q2K5jinAlChoCLS','xT9IgzoKnwFNmISR8I','3oEjI6SIIHBdRxXI40','l0MYC0LajbaPoEADu'][i]}/200.gif`
+                    });
+                }
+                state.gifs = gifs;
+                render();
+            } catch (e) {
+                console.error('GIF search error:', e);
+            }
         }
 
         // Render Functions
@@ -279,6 +647,9 @@
                 app.innerHTML = renderAuth();
             } else {
                 app.innerHTML = renderMain();
+                if (state.activeCall) {
+                    app.innerHTML += renderCallOverlay();
+                }
             }
             attachEventListeners();
         }
@@ -354,14 +725,15 @@
                         
                         <!-- Search -->
                         <div class="p-3">
-                            <input type="text" id="searchInput" placeholder="Search" 
+                            <input type="text" id="searchInput" placeholder="Search users..." 
                                 class="w-full p-2.5 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
+                        <div id="searchResults" class="hidden border-b border-theme max-h-48 overflow-y-auto"></div>
                         
                         <!-- Navigation Tabs -->
                         <div class="flex border-b border-theme">
                             <button class="nav-tab flex-1 py-3 text-sm font-medium ${state.currentView === 'chats' ? 'text-accent border-b-2 border-current' : 'text-secondary'}" data-view="chats">Chats</button>
-                            <button class="nav-tab flex-1 py-3 text-sm font-medium ${state.currentView === 'friends' ? 'text-accent border-b-2 border-current' : 'text-secondary'}" data-view="friends">Friends</button>
+                            <button class="nav-tab flex-1 py-3 text-sm font-medium ${state.currentView === 'contacts' ? 'text-accent border-b-2 border-current' : 'text-secondary'}" data-view="contacts">Contacts</button>
                             <button class="nav-tab flex-1 py-3 text-sm font-medium ${state.currentView === 'requests' ? 'text-accent border-b-2 border-current' : 'text-secondary'}" data-view="requests">
                                 Requests
                                 ${getPendingRequests().length > 0 ? `<span class="ml-1 bg-accent text-white text-xs px-1.5 py-0.5 rounded-full">${getPendingRequests().length}</span>` : ''}
@@ -371,19 +743,20 @@
                         <!-- Content -->
                         <div class="flex-1 overflow-y-auto scrollbar-thin">
                             ${state.currentView === 'chats' ? renderChatList() : ''}
-                            ${state.currentView === 'friends' ? renderFriendsList() : ''}
+                            ${state.currentView === 'contacts' ? renderContactsList() : ''}
                             ${state.currentView === 'requests' ? renderRequestsList() : ''}
                         </div>
                     </div>
                     
                     <!-- Main Content -->
-                    <div class="flex-1 flex flex-col bg-secondary">
+                    <div class="flex-1 flex flex-col bg-secondary chat-background" style="${state.chatWallpaper ? `background-image: url(${state.chatWallpaper}); background-size: cover;` : ''}">
                         ${state.currentChat ? renderChatArea() : renderEmptyState()}
                     </div>
                 </div>
                 
-                <!-- Modals -->
                 ${renderModals()}
+                ${state.showEmoji ? renderEmojiPicker() : ''}
+                ${state.showGif ? renderGifPicker() : ''}
             `;
         }
 
@@ -400,21 +773,23 @@
             });
 
             if (userChats.length === 0) {
-                return `<div class="p-4 text-center text-secondary">No chats yet. Add friends or create a group!</div>`;
+                return `<div class="p-4 text-center text-secondary">No chats yet. Search for users or create a group!</div>`;
             }
 
             return userChats.map(chat => {
                 const isActive = state.currentChat?.id === chat.id;
-                let name, avatar, lastMessage;
+                let name, avatar, avatarImage, lastMessage;
                 
                 if (chat.type === 'direct') {
                     const otherId = chat.participants.find(p => p !== state.currentUser.id);
                     const other = state.users.find(u => u.id === otherId);
-                    name = other?.displayName || 'Unknown';
+                    name = getContactName(otherId);
                     avatar = other?.avatar || '?';
+                    avatarImage = other?.avatarImage;
                 } else {
                     name = chat.name;
                     avatar = chat.avatar;
+                    avatarImage = chat.avatarImage;
                 }
                 
                 const messages = state.messages[chat.id] || [];
@@ -422,9 +797,10 @@
                 
                 return `
                     <div class="chat-item p-3 flex items-center gap-3 cursor-pointer ${isActive ? 'active' : ''}" data-chat-id="${chat.id}">
-                        <div class="w-12 h-12 rounded-full bg-accent flex items-center justify-center text-white font-semibold flex-shrink-0">
-                            ${avatar}
-                        </div>
+                        ${avatarImage ? 
+                            `<img src="${avatarImage}" class="w-12 h-12 rounded-full object-cover flex-shrink-0">` :
+                            `<div class="w-12 h-12 rounded-full bg-accent flex items-center justify-center text-white font-semibold flex-shrink-0">${avatar}</div>`
+                        }
                         <div class="flex-1 min-w-0">
                             <div class="flex justify-between items-center">
                                 <span class="font-medium text-primary truncate">${name}</span>
@@ -432,7 +808,7 @@
                             </div>
                             <div class="flex items-center gap-1">
                                 ${chat.type !== 'direct' ? `<span class="text-xs text-secondary">${chat.type === 'channel' ? '📢' : '👥'}</span>` : ''}
-                                <p class="text-sm text-secondary truncate">${lastMessage ? lastMessage.text : 'No messages'}</p>
+                                <p class="text-sm text-secondary truncate">${lastMessage ? (lastMessage.type === 'gif' ? '🎬 GIF' : lastMessage.text) : 'No messages'}</p>
                             </div>
                         </div>
                     </div>
@@ -440,28 +816,38 @@
             }).join('');
         }
 
-        function renderFriendsList() {
+        function renderContactsList() {
             const friendIds = state.friends[state.currentUser.id] || [];
-            const friends = friendIds.map(id => state.users.find(u => u.id === id)).filter(Boolean);
+            const contacts = state.contacts[state.currentUser.id] || {};
+            const allContactIds = [...new Set([...friendIds, ...Object.keys(contacts)])];
+            const contactUsers = allContactIds.map(id => state.users.find(u => u.id === id)).filter(Boolean);
             
-            if (friends.length === 0) {
-                return `<div class="p-4 text-center text-secondary">No friends yet. Send a friend request!</div>`;
+            if (contactUsers.length === 0) {
+                return `<div class="p-4 text-center text-secondary">No contacts yet. Search for users to add!</div>`;
             }
             
-            return friends.map(friend => `
-                <div class="p-3 flex items-center gap-3 hover:bg-tertiary cursor-pointer" data-friend-id="${friend.id}">
+            return contactUsers.map(user => {
+                const isFriend = friendIds.includes(user.id);
+                return `
+                <div class="p-3 flex items-center gap-3 hover:bg-tertiary cursor-pointer contact-item" data-user-id="${user.id}">
                     <div class="relative">
-                        <div class="w-12 h-12 rounded-full bg-accent flex items-center justify-center text-white font-semibold">
-                            ${friend.avatar}
-                        </div>
-                        <div class="absolute bottom-0 right-0 w-3.5 h-3.5 online-dot rounded-full border-2 border-primary"></div>
+                        ${user.avatarImage ? 
+                            `<img src="${user.avatarImage}" class="w-12 h-12 rounded-full object-cover">` :
+                            `<div class="w-12 h-12 rounded-full bg-accent flex items-center justify-center text-white font-semibold">${user.avatar}</div>`
+                        }
+                        ${isFriend ? `<div class="absolute bottom-0 right-0 w-3.5 h-3.5 online-dot rounded-full border-2 border-primary"></div>` : ''}
                     </div>
                     <div class="flex-1">
-                        <div class="font-medium text-primary">${friend.displayName}</div>
-                        <div class="text-sm text-secondary">@${friend.username}</div>
+                        <div class="font-medium text-primary">${getContactName(user.id)}</div>
+                        <div class="text-sm text-secondary">@${user.username} ${!isFriend ? '• Not a friend' : ''}</div>
                     </div>
+                    <button class="edit-contact p-2 hover:bg-tertiary rounded-lg" data-user-id="${user.id}">
+                        <svg class="w-4 h-4 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                        </svg>
+                    </button>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         function renderRequestsList() {
@@ -476,9 +862,10 @@
                     const fromUser = state.users.find(u => u.id === req.from);
                     return `
                         <div class="p-3 flex items-center gap-3 hover:bg-tertiary">
-                            <div class="w-12 h-12 rounded-full bg-accent flex items-center justify-center text-white font-semibold">
-                                ${fromUser?.avatar || '?'}
-                            </div>
+                            ${fromUser?.avatarImage ? 
+                                `<img src="${fromUser.avatarImage}" class="w-12 h-12 rounded-full object-cover">` :
+                                `<div class="w-12 h-12 rounded-full bg-accent flex items-center justify-center text-white font-semibold">${fromUser?.avatar || '?'}</div>`
+                            }
                             <div class="flex-1">
                                 <div class="font-medium text-primary">${fromUser?.displayName}</div>
                                 <div class="text-sm text-secondary">@${fromUser?.username}</div>
@@ -518,33 +905,58 @@
 
         function renderChatArea() {
             const chat = state.currentChat;
-            let name, avatar, subtitle;
+            let name, avatar, avatarImage, subtitle, otherId;
             
             if (chat.type === 'direct') {
-                const otherId = chat.participants.find(p => p !== state.currentUser.id);
+                otherId = chat.participants.find(p => p !== state.currentUser.id);
                 const other = state.users.find(u => u.id === otherId);
-                name = other?.displayName || 'Unknown';
+                name = getContactName(otherId);
                 avatar = other?.avatar || '?';
-                subtitle = 'online';
+                avatarImage = other?.avatarImage;
+                subtitle = other?.isBot ? 'bot' : 'online';
             } else {
                 name = chat.name;
                 avatar = chat.avatar;
+                avatarImage = chat.avatarImage;
                 subtitle = `${chat.members.length} members`;
             }
             
             const messages = state.messages[chat.id] || [];
             const canSend = chat.type !== 'channel' || chat.admins.includes(state.currentUser.id);
+            const canCall = chat.type === 'direct' && !state.users.find(u => u.id === otherId)?.isBot;
+            
+            // Check if messages will be received (both are friends)
+            let notFriendsWarning = '';
+            if (chat.type === 'direct') {
+                const friends = state.friends[state.currentUser.id] || [];
+                if (!friends.includes(otherId) && !state.users.find(u => u.id === otherId)?.isBot) {
+                    notFriendsWarning = `<div class="bg-yellow-500/20 text-yellow-300 text-sm p-2 text-center">⚠️ You're not friends. Messages won't be delivered until they accept your request.</div>`;
+                }
+            }
             
             return `
                 <!-- Chat Header -->
                 <div class="p-4 bg-primary border-b border-theme flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-white font-semibold">
-                        ${avatar}
-                    </div>
+                    ${avatarImage ? 
+                        `<img src="${avatarImage}" class="w-10 h-10 rounded-full object-cover">` :
+                        `<div class="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-white font-semibold">${avatar}</div>`
+                    }
                     <div class="flex-1">
                         <div class="font-semibold text-primary">${name}</div>
                         <div class="text-sm text-secondary">${subtitle}</div>
                     </div>
+                    ${canCall ? `
+                        <button id="voiceCallBtn" class="p-2 hover:bg-tertiary rounded-lg transition" title="Voice Call">
+                            <svg class="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                            </svg>
+                        </button>
+                        <button id="videoCallBtn" class="p-2 hover:bg-tertiary rounded-lg transition" title="Video Call">
+                            <svg class="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                            </svg>
+                        </button>
+                    ` : ''}
                     ${chat.type !== 'direct' ? `
                         <button id="groupInfoBtn" class="p-2 hover:bg-tertiary rounded-lg transition">
                             <svg class="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -553,6 +965,8 @@
                         </button>
                     ` : ''}
                 </div>
+                
+                ${notFriendsWarning}
                 
                 <!-- Messages -->
                 <div id="messagesContainer" class="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin">
@@ -563,7 +977,9 @@
                             <div class="flex ${isOwn ? 'justify-end' : 'justify-start'}">
                                 <div class="${isOwn ? 'message-out' : 'message-in'} max-w-md px-4 py-2 rounded-2xl ${isOwn ? 'rounded-br-sm' : 'rounded-bl-sm'}">
                                     ${chat.type !== 'direct' && !isOwn ? `<div class="text-xs text-accent font-medium mb-1">${sender?.displayName}</div>` : ''}
-                                    <p class="text-primary">${msg.text}</p>
+                                    ${msg.type === 'gif' ? `<img src="${msg.mediaUrl}" class="rounded-lg max-w-full" alt="GIF">` : 
+                                      msg.type === 'sticker' ? `<div class="text-5xl">${msg.text}</div>` :
+                                      `<p class="text-primary">${msg.text}</p>`}
                                     <div class="text-xs text-secondary mt-1 text-right">${formatTime(msg.createdAt)}</div>
                                 </div>
                             </div>
@@ -574,7 +990,16 @@
                 <!-- Input -->
                 ${canSend ? `
                     <div class="p-4 bg-primary border-t border-theme">
-                        <div class="flex items-center gap-3">
+                        <div class="flex items-center gap-2">
+                            <button id="emojiBtn" class="p-2 hover:bg-tertiary rounded-lg transition" title="Emoji">
+                                <span class="text-xl">😊</span>
+                            </button>
+                            <button id="gifBtn" class="p-2 hover:bg-tertiary rounded-lg transition" title="GIF">
+                                <span class="text-sm font-bold text-secondary">GIF</span>
+                            </button>
+                            <button id="stickerBtn" class="p-2 hover:bg-tertiary rounded-lg transition" title="Stickers">
+                                <span class="text-xl">🎨</span>
+                            </button>
                             <input type="text" id="messageInput" placeholder="Write a message..." 
                                 class="flex-1 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <button id="sendBtn" class="p-3 bg-accent rounded-xl hover:opacity-90 transition">
@@ -608,19 +1033,121 @@
             `;
         }
 
+        function renderEmojiPicker() {
+            return `
+                <div id="emojiPicker" class="fixed bottom-20 left-96 bg-primary rounded-xl shadow-2xl border border-theme p-4 w-80 max-h-96 overflow-y-auto z-50">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="font-semibold text-primary">Emoji</span>
+                        <button id="closeEmoji" class="text-secondary hover:text-primary">✕</button>
+                    </div>
+                    ${Object.entries(EMOJIS).map(([category, emojis]) => `
+                        <div class="mb-3">
+                            <div class="text-xs text-secondary mb-2">${category}</div>
+                            <div class="emoji-grid">
+                                ${emojis.map(e => `<button class="emoji-btn emoji-select" data-emoji="${e}">${e}</button>`).join('')}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function renderGifPicker() {
+            return `
+                <div id="gifPicker" class="fixed bottom-20 left-96 bg-primary rounded-xl shadow-2xl border border-theme p-4 w-80 max-h-96 overflow-y-auto z-50">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="font-semibold text-primary">GIFs</span>
+                        <button id="closeGif" class="text-secondary hover:text-primary">✕</button>
+                    </div>
+                    <input type="text" id="gifSearch" placeholder="Search GIFs..." class="w-full p-2 rounded-lg mb-3 text-sm">
+                    <div class="gif-grid">
+                        ${state.gifs.map(gif => `
+                            <div class="gif-item" data-url="${gif.url}">
+                                <img src="${gif.preview}" alt="GIF" loading="lazy">
+                            </div>
+                        `).join('')}
+                    </div>
+                    ${state.gifs.length === 0 ? '<p class="text-center text-secondary text-sm">Search for GIFs above</p>' : ''}
+                </div>
+            `;
+        }
+
+        function renderCallOverlay() {
+            const call = state.activeCall;
+            return `
+                <div class="fixed inset-0 call-overlay z-50 flex flex-col items-center justify-center">
+                    <div class="text-center">
+                        <div class="relative inline-block mb-6">
+                            <div class="absolute inset-0 bg-accent rounded-full pulse-ring"></div>
+                            <div class="relative w-32 h-32 rounded-full bg-accent flex items-center justify-center text-white text-5xl font-bold">
+                                ${typeof call.userAvatar === 'string' && call.userAvatar.length > 2 ? 
+                                    `<img src="${call.userAvatar}" class="w-full h-full rounded-full object-cover">` : 
+                                    call.userAvatar}
+                            </div>
+                        </div>
+                        <h2 class="text-2xl font-bold text-white mb-2">${call.userName}</h2>
+                        <p class="text-white/70 mb-8">
+                            ${call.status === 'calling' ? (call.isVideo ? 'Video calling...' : 'Calling...') : 
+                              call.status === 'active' ? formatCallDuration(call.startTime) : 'Connecting...'}
+                        </p>
+                        <div class="flex items-center justify-center gap-6">
+                            ${call.status === 'active' ? `
+                                <button class="p-4 bg-tertiary rounded-full hover:bg-opacity-80 transition">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
+                                    </svg>
+                                </button>
+                                <button class="p-4 bg-tertiary rounded-full hover:bg-opacity-80 transition">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15.536a5 5 0 001.414 1.414m2.828-9.9a9 9 0 0112.728 0"/>
+                                    </svg>
+                                </button>
+                            ` : ''}
+                            <button id="endCallBtn" class="p-4 bg-red-500 rounded-full hover:bg-red-600 transition">
+                                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M5 3a2 2 0 00-2 2v1c0 8.284 6.716 15 15 15h1a2 2 0 002-2v-3.28a1 1 0 00-.684-.948l-4.493-1.498a1 1 0 00-1.21.502l-1.13 2.257a11.042 11.042 0 01-5.516-5.517l2.257-1.128a1 1 0 00.502-1.21L9.228 3.683A1 1 0 008.279 3H5z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function formatCallDuration(startTime) {
+            if (!startTime) return '00:00';
+            const seconds = Math.floor((Date.now() - startTime) / 1000);
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
         function renderModals() {
             return `
                 <!-- Menu Modal -->
                 <div id="menuModal" class="fixed inset-0 modal-overlay hidden z-50">
-                    <div class="absolute left-0 top-0 h-full w-72 bg-primary shadow-xl transform transition-transform">
+                    <div class="absolute left-0 top-0 h-full w-72 bg-primary shadow-xl">
                         <div class="p-4 bg-accent">
-                            <div class="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center text-white text-2xl font-bold mb-3">
-                                ${state.currentUser?.avatar}
+                            <div class="avatar-upload w-16 h-16 rounded-full bg-white/20 flex items-center justify-center text-white text-2xl font-bold mb-3 mx-auto" id="userAvatarUpload">
+                                ${state.currentUser?.avatarImage ? 
+                                    `<img src="${state.currentUser.avatarImage}" class="w-full h-full rounded-full object-cover">` :
+                                    state.currentUser?.avatar}
+                                <div class="avatar-overlay rounded-full">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    </svg>
+                                </div>
+                                <input type="file" id="avatarInput" class="hidden" accept="image/*">
                             </div>
-                            <div class="text-white font-semibold">${state.currentUser?.displayName}</div>
-                            <div class="text-white/70 text-sm">@${state.currentUser?.username}</div>
+                            <div class="text-white font-semibold text-center">${state.currentUser?.displayName}</div>
+                            <div class="text-white/70 text-sm text-center">@${state.currentUser?.username}</div>
                         </div>
                         <div class="py-2">
+                            <button id="botChatBtn" class="w-full px-4 py-3 flex items-center gap-3 hover:bg-tertiary text-primary">
+                                <span class="text-xl">🤖</span>
+                                Sticker Bot
+                            </button>
                             <button id="settingsBtn" class="w-full px-4 py-3 flex items-center gap-3 hover:bg-tertiary text-primary">
                                 <svg class="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
@@ -639,9 +1166,9 @@
                 </div>
                 
                 <!-- Settings Modal -->
-                <div id="settingsModal" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center">
-                    <div class="bg-primary rounded-xl shadow-xl w-full max-w-md mx-4 max-h-[80vh] overflow-y-auto">
-                        <div class="p-4 border-b border-theme flex justify-between items-center">
+                <div id="settingsModal" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center p-4">
+                    <div class="bg-primary rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+                        <div class="p-4 border-b border-theme flex justify-between items-center sticky top-0 bg-primary">
                             <h2 class="text-lg font-semibold text-primary">Settings</h2>
                             <button id="closeSettings" class="p-1 hover:bg-tertiary rounded-lg">
                                 <svg class="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -649,25 +1176,100 @@
                                 </svg>
                             </button>
                         </div>
-                        <div class="p-4">
-                            <h3 class="text-sm font-semibold text-secondary mb-3">Theme</h3>
-                            <div class="grid grid-cols-2 gap-3">
-                                <button class="theme-option p-4 rounded-xl border-2 ${state.theme === 'dark' ? 'border-accent' : 'border-theme'}" data-theme="dark">
-                                    <div class="w-full h-12 rounded-lg bg-[#17212b] mb-2"></div>
-                                    <span class="text-sm text-primary">Dark</span>
-                                </button>
-                                <button class="theme-option p-4 rounded-xl border-2 ${state.theme === 'light' ? 'border-accent' : 'border-theme'}" data-theme="light">
-                                    <div class="w-full h-12 rounded-lg bg-[#ffffff] border mb-2"></div>
-                                    <span class="text-sm text-primary">Light</span>
-                                </button>
-                                <button class="theme-option p-4 rounded-xl border-2 ${state.theme === 'purple' ? 'border-accent' : 'border-theme'}" data-theme="purple">
-                                    <div class="w-full h-12 rounded-lg bg-[#1e1a2e] mb-2"></div>
-                                    <span class="text-sm text-primary">Purple</span>
-                                </button>
-                                <button class="theme-option p-4 rounded-xl border-2 ${state.theme === 'green' ? 'border-accent' : 'border-theme'}" data-theme="green">
-                                    <div class="w-full h-12 rounded-lg bg-[#1a2e1e] mb-2"></div>
-                                    <span class="text-sm text-primary">Green</span>
-                                </button>
+                        <div class="p-4 space-y-6">
+                            <!-- Themes -->
+                            <div>
+                                <h3 class="text-sm font-semibold text-secondary mb-3">🎨 Theme</h3>
+                                <div class="grid grid-cols-3 gap-3">
+                                    ${['dark', 'light', 'purple', 'green', 'pink', 'ocean'].map(t => `
+                                        <button class="theme-option p-3 rounded-xl border-2 ${state.theme === t ? 'border-accent' : 'border-theme'}" data-theme="${t}">
+                                            <div class="w-full h-8 rounded-lg mb-2" style="background: ${
+                                                t === 'dark' ? '#17212b' : t === 'light' ? '#ffffff' : t === 'purple' ? '#1e1a2e' : 
+                                                t === 'green' ? '#1a2e1e' : t === 'pink' ? '#2e1a2a' : '#1a2a2e'
+                                            }; border: 1px solid #333;"></div>
+                                            <span class="text-xs text-primary capitalize">${t}</span>
+                                        </button>
+                                    `).join('')}
+                                </div>
+                            </div>
+                            
+                            <!-- Zoom -->
+                            <div>
+                                <h3 class="text-sm font-semibold text-secondary mb-3">🔍 Zoom (${Math.round(state.zoom * 100)}%)</h3>
+                                <input type="range" id="zoomSlider" min="0.5" max="1.5" step="0.1" value="${state.zoom}" 
+                                    class="w-full accent-[var(--accent)]">
+                                <div class="flex justify-between text-xs text-secondary mt-1">
+                                    <span>50%</span>
+                                    <span>100%</span>
+                                    <span>150%</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Chat Wallpaper -->
+                            <div>
+                                <h3 class="text-sm font-semibold text-secondary mb-3">🖼️ Chat Wallpaper</h3>
+                                <div class="grid grid-cols-4 gap-2 mb-3">
+                                    <button class="wallpaper-option h-16 rounded-lg border-2 ${!state.chatWallpaper ? 'border-accent' : 'border-theme'} bg-secondary" data-wallpaper="">
+                                        <span class="text-xs text-secondary">None</span>
+                                    </button>
+                                    ${['https://images.unsplash.com/photo-1557683316-973673baf926?w=400',
+                                       'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=400',
+                                       'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=400',
+                                       'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=400',
+                                       'https://images.unsplash.com/photo-1507400492013-162706c8c05e?w=400',
+                                       'https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?w=400'].map(url => `
+                                        <button class="wallpaper-option h-16 rounded-lg border-2 ${state.chatWallpaper === url ? 'border-accent' : 'border-theme'} bg-cover bg-center" 
+                                            style="background-image: url(${url})" data-wallpaper="${url}"></button>
+                                    `).join('')}
+                                </div>
+                                <div class="flex gap-2">
+                                    <input type="text" id="customWallpaper" placeholder="Or paste image URL..." 
+                                        class="flex-1 p-2 rounded-lg text-sm" value="${state.chatWallpaper || ''}">
+                                    <button id="applyWallpaper" class="px-3 py-2 bg-accent text-white rounded-lg text-sm">Apply</button>
+                                </div>
+                            </div>
+                            
+                            <!-- App Background -->
+                            <div>
+                                <h3 class="text-sm font-semibold text-secondary mb-3">🌄 App Background</h3>
+                                <div class="flex gap-2">
+                                    <input type="text" id="customAppBg" placeholder="Paste image URL..." 
+                                        class="flex-1 p-2 rounded-lg text-sm" value="${state.appBackground || ''}">
+                                    <button id="applyAppBg" class="px-3 py-2 bg-accent text-white rounded-lg text-sm">Apply</button>
+                                    <button id="clearAppBg" class="px-3 py-2 bg-tertiary text-primary rounded-lg text-sm">Clear</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Call Settings -->
+                            <div>
+                                <h3 class="text-sm font-semibold text-secondary mb-3">📞 Call Settings</h3>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="text-sm text-primary mb-1 block">Who can call me</label>
+                                        <select id="whoCanCall" class="w-full p-2 rounded-lg">
+                                            <option value="everyone" ${state.callSettings.whoCanCall === 'everyone' ? 'selected' : ''}>Everyone</option>
+                                            <option value="contacts" ${state.callSettings.whoCanCall === 'contacts' ? 'selected' : ''}>Contacts Only</option>
+                                            <option value="nobody" ${state.callSettings.whoCanCall === 'nobody' ? 'selected' : ''}>Nobody</option>
+                                        </select>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-primary">Enable video by default</span>
+                                        <input type="checkbox" id="videoDefault" ${state.callSettings.videoDefault ? 'checked' : ''} 
+                                            class="w-5 h-5 accent-[var(--accent)]">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Profile -->
+                            <div>
+                                <h3 class="text-sm font-semibold text-secondary mb-3">👤 Profile</h3>
+                                <div class="space-y-3">
+                                    <input type="text" id="editDisplayName" placeholder="Display Name" 
+                                        class="w-full p-2 rounded-lg" value="${state.currentUser?.displayName || ''}">
+                                    <textarea id="editBio" placeholder="Bio" rows="2"
+                                        class="w-full p-2 rounded-lg resize-none">${state.currentUser?.bio || ''}</textarea>
+                                    <button id="saveProfile" class="w-full bg-accent text-white p-2 rounded-lg font-medium">Save Profile</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -678,35 +1280,19 @@
                     <div class="bg-primary rounded-xl shadow-xl w-full max-w-md mx-4">
                         <div class="p-4 border-b border-theme flex justify-between items-center">
                             <h2 class="text-lg font-semibold text-primary">New</h2>
-                            <button id="closeNewChat" class="p-1 hover:bg-tertiary rounded-lg">
-                                <svg class="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                </svg>
-                            </button>
+                            <button id="closeNewChat" class="p-1 hover:bg-tertiary rounded-lg">✕</button>
                         </div>
                         <div class="p-4 space-y-3">
                             <button id="addFriendOption" class="w-full p-3 flex items-center gap-3 rounded-xl hover:bg-tertiary transition">
-                                <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center">
-                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
-                                    </svg>
-                                </div>
+                                <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center">👤</div>
                                 <span class="text-primary font-medium">Add Friend</span>
                             </button>
                             <button id="createGroupOption" class="w-full p-3 flex items-center gap-3 rounded-xl hover:bg-tertiary transition">
-                                <div class="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center">
-                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                                    </svg>
-                                </div>
+                                <div class="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center">👥</div>
                                 <span class="text-primary font-medium">New Group</span>
                             </button>
                             <button id="createChannelOption" class="w-full p-3 flex items-center gap-3 rounded-xl hover:bg-tertiary transition">
-                                <div class="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center">
-                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/>
-                                    </svg>
-                                </div>
+                                <div class="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center">📢</div>
                                 <span class="text-primary font-medium">New Channel</span>
                             </button>
                         </div>
@@ -718,20 +1304,13 @@
                     <div class="bg-primary rounded-xl shadow-xl w-full max-w-md mx-4">
                         <div class="p-4 border-b border-theme flex justify-between items-center">
                             <h2 class="text-lg font-semibold text-primary">Add Friend</h2>
-                            <button id="closeAddFriend" class="p-1 hover:bg-tertiary rounded-lg">
-                                <svg class="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                </svg>
-                            </button>
+                            <button id="closeAddFriend" class="p-1 hover:bg-tertiary rounded-lg">✕</button>
                         </div>
                         <div class="p-4">
-                            <p class="text-secondary text-sm mb-3">Enter the username of the person you want to add as a friend.</p>
                             <input type="text" id="friendUsername" placeholder="Username" 
-                                class="w-full p-3 rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                class="w-full p-3 rounded-lg mb-3">
                             <p id="friendError" class="text-red-500 text-sm mb-3 hidden"></p>
-                            <button id="sendFriendRequest" class="w-full bg-accent text-white p-3 rounded-lg font-semibold hover:opacity-90 transition">
-                                Send Friend Request
-                            </button>
+                            <button id="sendFriendRequest" class="w-full bg-accent text-white p-3 rounded-lg font-semibold">Send Friend Request</button>
                         </div>
                     </div>
                 </div>
@@ -741,21 +1320,13 @@
                     <div class="bg-primary rounded-xl shadow-xl w-full max-w-md mx-4">
                         <div class="p-4 border-b border-theme flex justify-between items-center">
                             <h2 class="text-lg font-semibold text-primary" id="createGroupTitle">New Group</h2>
-                            <button id="closeCreateGroup" class="p-1 hover:bg-tertiary rounded-lg">
-                                <svg class="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                </svg>
-                            </button>
+                            <button id="closeCreateGroup" class="p-1 hover:bg-tertiary rounded-lg">✕</button>
                         </div>
                         <div class="p-4">
-                            <input type="text" id="groupName" placeholder="Group name" 
-                                class="w-full p-3 rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <textarea id="groupDescription" placeholder="Description (optional)" rows="3"
-                                class="w-full p-3 rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
+                            <input type="text" id="groupName" placeholder="Group name" class="w-full p-3 rounded-lg mb-3">
+                            <textarea id="groupDescription" placeholder="Description" rows="2" class="w-full p-3 rounded-lg mb-3 resize-none"></textarea>
                             <input type="hidden" id="isChannel" value="false">
-                            <button id="createGroupBtn" class="w-full bg-accent text-white p-3 rounded-lg font-semibold hover:opacity-90 transition">
-                                Create
-                            </button>
+                            <button id="createGroupBtn" class="w-full bg-accent text-white p-3 rounded-lg font-semibold">Create</button>
                         </div>
                     </div>
                 </div>
@@ -765,13 +1336,35 @@
                     <div class="bg-primary rounded-xl shadow-xl w-full max-w-md mx-4 max-h-[80vh] overflow-y-auto">
                         <div class="p-4 border-b border-theme flex justify-between items-center">
                             <h2 class="text-lg font-semibold text-primary">Group Info</h2>
-                            <button id="closeGroupInfo" class="p-1 hover:bg-tertiary rounded-lg">
-                                <svg class="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                </svg>
-                            </button>
+                            <button id="closeGroupInfo" class="p-1 hover:bg-tertiary rounded-lg">✕</button>
                         </div>
                         <div id="groupInfoContent" class="p-4"></div>
+                    </div>
+                </div>
+                
+                <!-- Edit Contact Modal -->
+                <div id="editContactModal" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center">
+                    <div class="bg-primary rounded-xl shadow-xl w-full max-w-md mx-4">
+                        <div class="p-4 border-b border-theme flex justify-between items-center">
+                            <h2 class="text-lg font-semibold text-primary">Edit Contact</h2>
+                            <button id="closeEditContact" class="p-1 hover:bg-tertiary rounded-lg">✕</button>
+                        </div>
+                        <div class="p-4">
+                            <input type="hidden" id="editContactId">
+                            <input type="text" id="contactNickname" placeholder="Nickname" class="w-full p-3 rounded-lg mb-3">
+                            <button id="saveContact" class="w-full bg-accent text-white p-3 rounded-lg font-semibold">Save</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sticker Picker Modal -->
+                <div id="stickerModal" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center">
+                    <div class="bg-primary rounded-xl shadow-xl w-full max-w-md mx-4 max-h-[60vh] overflow-y-auto">
+                        <div class="p-4 border-b border-theme flex justify-between items-center">
+                            <h2 class="text-lg font-semibold text-primary">Stickers</h2>
+                            <button id="closeStickerModal" class="p-1 hover:bg-tertiary rounded-lg">✕</button>
+                        </div>
+                        <div id="stickerContent" class="p-4"></div>
                     </div>
                 </div>
             `;
@@ -781,40 +1374,28 @@
             const date = new Date(dateStr);
             const now = new Date();
             const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
-            
-            if (diffDays === 0) {
-                return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            } else if (diffDays < 7) {
-                return date.toLocaleDateString([], { weekday: 'short' });
-            } else {
-                return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
-            }
+            if (diffDays === 0) return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            if (diffDays < 7) return date.toLocaleDateString([], { weekday: 'short' });
+            return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
         }
 
         function attachEventListeners() {
-            // Auth Events
+            // Auth
             document.getElementById('showRegister')?.addEventListener('click', () => {
                 document.getElementById('loginForm').classList.add('hidden');
                 document.getElementById('registerForm').classList.remove('hidden');
             });
-            
             document.getElementById('showLogin')?.addEventListener('click', () => {
                 document.getElementById('registerForm').classList.add('hidden');
                 document.getElementById('loginForm').classList.remove('hidden');
             });
-            
             document.getElementById('loginBtn')?.addEventListener('click', () => {
-                const username = document.getElementById('loginUsername').value;
-                const password = document.getElementById('loginPassword').value;
-                const result = login(username, password);
+                const result = login(document.getElementById('loginUsername').value, document.getElementById('loginPassword').value);
                 if (result.error) {
                     document.getElementById('authError').textContent = result.error;
                     document.getElementById('authError').classList.remove('hidden');
-                } else {
-                    render();
-                }
+                } else render();
             });
-            
             document.getElementById('registerBtn')?.addEventListener('click', () => {
                 const username = document.getElementById('regUsername').value;
                 const displayName = document.getElementById('regDisplayName').value;
@@ -823,269 +1404,395 @@
                 if (result.error) {
                     document.getElementById('authError').textContent = result.error;
                     document.getElementById('authError').classList.remove('hidden');
-                } else {
-                    login(username, password);
-                    render();
-                }
+                } else { login(username, password); render(); }
+            });
+            
+            // Search
+            let searchTimeout;
+            document.getElementById('searchInput')?.addEventListener('input', (e) => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    const query = e.target.value;
+                    const results = searchUsers(query);
+                    const container = document.getElementById('searchResults');
+                    if (results.length > 0) {
+                        container.innerHTML = results.map(u => `
+                            <div class="p-3 flex items-center gap-3 hover:bg-tertiary cursor-pointer search-result" data-user-id="${u.id}">
+                                <div class="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-white font-semibold">${u.avatar}</div>
+                                <div class="flex-1">
+                                    <div class="font-medium text-primary">${u.displayName}</div>
+                                    <div class="text-sm text-secondary">@${u.username}</div>
+                                </div>
+                                <button class="add-contact-btn px-2 py-1 bg-accent text-white text-xs rounded" data-user-id="${u.id}">Add</button>
+                            </div>
+                        `).join('');
+                        container.classList.remove('hidden');
+                        
+                        container.querySelectorAll('.search-result').forEach(el => {
+                            el.addEventListener('click', (e) => {
+                                if (!e.target.classList.contains('add-contact-btn')) {
+                                    const chat = startChatWithUser(el.dataset.userId);
+                                    state.currentChat = chat;
+                                    container.classList.add('hidden');
+                                    render();
+                                }
+                            });
+                        });
+                        container.querySelectorAll('.add-contact-btn').forEach(btn => {
+                            btn.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                addContact(btn.dataset.userId, '');
+                                render();
+                            });
+                        });
+                    } else {
+                        container.classList.add('hidden');
+                    }
+                }, 300);
             });
             
             // Navigation
             document.querySelectorAll('.nav-tab').forEach(tab => {
-                tab.addEventListener('click', () => {
-                    state.currentView = tab.dataset.view;
-                    render();
-                });
+                tab.addEventListener('click', () => { state.currentView = tab.dataset.view; render(); });
             });
             
             // Chat selection
             document.querySelectorAll('.chat-item').forEach(item => {
                 item.addEventListener('click', () => {
-                    const chatId = item.dataset.chatId;
-                    state.currentChat = state.chats.find(c => c.id === chatId);
-                    render();
-                    scrollToBottom();
+                    state.currentChat = state.chats.find(c => c.id === item.dataset.chatId);
+                    render(); scrollToBottom();
                 });
             });
             
-            // Friend click - open chat
-            document.querySelectorAll('[data-friend-id]').forEach(item => {
-                item.addEventListener('click', () => {
-                    const friendId = item.dataset.friendId;
-                    const chatId = [state.currentUser.id, friendId].sort().join('_');
-                    state.currentChat = state.chats.find(c => c.id === chatId);
-                    if (state.currentChat) {
-                        render();
-                        scrollToBottom();
+            // Contact click
+            document.querySelectorAll('.contact-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    if (!e.target.closest('.edit-contact')) {
+                        const chat = startChatWithUser(item.dataset.userId);
+                        state.currentChat = chat;
+                        render(); scrollToBottom();
                     }
                 });
             });
             
-            // Friend requests
-            document.querySelectorAll('.accept-request').forEach(btn => {
+            // Edit contact
+            document.querySelectorAll('.edit-contact').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    acceptFriendRequest(btn.dataset.requestId);
-                    render();
+                    const userId = btn.dataset.userId;
+                    const contact = state.contacts[state.currentUser.id]?.[userId];
+                    document.getElementById('editContactId').value = userId;
+                    document.getElementById('contactNickname').value = contact?.nickname || '';
+                    document.getElementById('editContactModal').classList.remove('hidden');
                 });
             });
             
+            document.getElementById('closeEditContact')?.addEventListener('click', () => {
+                document.getElementById('editContactModal').classList.add('hidden');
+            });
+            
+            document.getElementById('saveContact')?.addEventListener('click', () => {
+                const userId = document.getElementById('editContactId').value;
+                const nickname = document.getElementById('contactNickname').value;
+                addContact(userId, nickname);
+                document.getElementById('editContactModal').classList.add('hidden');
+                render();
+            });
+            
+            // Friend requests
+            document.querySelectorAll('.accept-request').forEach(btn => {
+                btn.addEventListener('click', () => { acceptFriendRequest(btn.dataset.requestId); render(); });
+            });
             document.querySelectorAll('.decline-request').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    declineFriendRequest(btn.dataset.requestId);
-                    render();
-                });
+                btn.addEventListener('click', () => { declineFriendRequest(btn.dataset.requestId); render(); });
             });
             
             // Send message
             document.getElementById('sendBtn')?.addEventListener('click', sendCurrentMessage);
-            document.getElementById('messageInput')?.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') sendCurrentMessage();
+            document.getElementById('messageInput')?.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendCurrentMessage(); });
+            
+            // Emoji
+            document.getElementById('emojiBtn')?.addEventListener('click', () => { state.showEmoji = !state.showEmoji; state.showGif = false; render(); });
+            document.getElementById('closeEmoji')?.addEventListener('click', () => { state.showEmoji = false; render(); });
+            document.querySelectorAll('.emoji-select').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const input = document.getElementById('messageInput');
+                    input.value += btn.dataset.emoji;
+                    input.focus();
+                });
             });
+            
+            // GIF
+            document.getElementById('gifBtn')?.addEventListener('click', () => { 
+                state.showGif = !state.showGif; state.showEmoji = false; 
+                if (state.showGif) searchGifs('trending');
+                render(); 
+            });
+            document.getElementById('closeGif')?.addEventListener('click', () => { state.showGif = false; render(); });
+            document.getElementById('gifSearch')?.addEventListener('input', (e) => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => searchGifs(e.target.value || 'trending'), 500);
+            });
+            document.querySelectorAll('.gif-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    if (state.currentChat) {
+                        sendMessage(state.currentChat.id, '', 'gif', item.dataset.url);
+                        state.showGif = false;
+                        render(); scrollToBottom();
+                    }
+                });
+            });
+            
+            // Stickers
+            document.getElementById('stickerBtn')?.addEventListener('click', () => {
+                const myPacks = state.stickerPacks.filter(p => p.creator === state.currentUser.id);
+                let content = '';
+                if (myPacks.length === 0) {
+                    content = '<p class="text-secondary text-center">No sticker packs. Chat with @StickerBot to create one!</p>';
+                } else {
+                    content = myPacks.map(pack => `
+                        <div class="mb-4">
+                            <h4 class="text-sm font-semibold text-primary mb-2">${pack.name}</h4>
+                            <div class="flex flex-wrap gap-2">
+                                ${pack.stickers.map(s => s.type === 'emoji' ? 
+                                    `<button class="sticker-send text-3xl p-2 hover:bg-tertiary rounded" data-type="sticker" data-content="${s.content}">${s.content}</button>` :
+                                    `<button class="sticker-send hover:bg-tertiary rounded p-1" data-type="gif" data-url="${s.url}"><img src="${s.url}" class="w-16 h-16 object-cover rounded"></button>`
+                                ).join('')}
+                            </div>
+                        </div>
+                    `).join('');
+                }
+                document.getElementById('stickerContent').innerHTML = content;
+                document.getElementById('stickerModal').classList.remove('hidden');
+                
+                document.querySelectorAll('.sticker-send').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        if (state.currentChat) {
+                            if (btn.dataset.type === 'sticker') {
+                                sendMessage(state.currentChat.id, btn.dataset.content, 'sticker');
+                            } else {
+                                sendMessage(state.currentChat.id, '', 'gif', btn.dataset.url);
+                            }
+                            document.getElementById('stickerModal').classList.add('hidden');
+                            render(); scrollToBottom();
+                        }
+                    });
+                });
+            });
+            document.getElementById('closeStickerModal')?.addEventListener('click', () => {
+                document.getElementById('stickerModal').classList.add('hidden');
+            });
+            
+            // Calls
+            document.getElementById('voiceCallBtn')?.addEventListener('click', () => {
+                const otherId = state.currentChat.participants.find(p => p !== state.currentUser.id);
+                startCall(otherId, false);
+            });
+            document.getElementById('videoCallBtn')?.addEventListener('click', () => {
+                const otherId = state.currentChat.participants.find(p => p !== state.currentUser.id);
+                startCall(otherId, true);
+            });
+            document.getElementById('endCallBtn')?.addEventListener('click', endCall);
             
             // Menu
-            document.getElementById('menuBtn')?.addEventListener('click', () => {
-                document.getElementById('menuModal').classList.remove('hidden');
-            });
+            document.getElementById('menuBtn')?.addEventListener('click', () => document.getElementById('menuModal').classList.remove('hidden'));
+            document.getElementById('menuModal')?.addEventListener('click', (e) => { if (e.target.id === 'menuModal') document.getElementById('menuModal').classList.add('hidden'); });
+            document.getElementById('logoutBtn')?.addEventListener('click', logout);
             
-            document.getElementById('menuModal')?.addEventListener('click', (e) => {
-                if (e.target.id === 'menuModal') {
-                    document.getElementById('menuModal').classList.add('hidden');
+            // Avatar upload
+            document.getElementById('userAvatarUpload')?.addEventListener('click', () => document.getElementById('avatarInput').click());
+            document.getElementById('avatarInput')?.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        updateProfile({ avatarImage: ev.target.result });
+                        render();
+                    };
+                    reader.readAsDataURL(file);
                 }
             });
             
-            document.getElementById('logoutBtn')?.addEventListener('click', logout);
+            // Bot chat
+            document.getElementById('botChatBtn')?.addEventListener('click', () => {
+                const chat = startBotChat();
+                if (chat) {
+                    state.currentChat = chat;
+                    document.getElementById('menuModal').classList.add('hidden');
+                    render(); scrollToBottom();
+                }
+            });
             
+            // Settings
             document.getElementById('settingsBtn')?.addEventListener('click', () => {
                 document.getElementById('menuModal').classList.add('hidden');
                 document.getElementById('settingsModal').classList.remove('hidden');
             });
+            document.getElementById('closeSettings')?.addEventListener('click', () => document.getElementById('settingsModal').classList.add('hidden'));
+            document.getElementById('settingsModal')?.addEventListener('click', (e) => { if (e.target.id === 'settingsModal') e.target.classList.add('hidden'); });
             
-            document.getElementById('closeSettings')?.addEventListener('click', () => {
-                document.getElementById('settingsModal').classList.add('hidden');
-            });
-            
-            document.getElementById('settingsModal')?.addEventListener('click', (e) => {
-                if (e.target.id === 'settingsModal') {
-                    document.getElementById('settingsModal').classList.add('hidden');
-                }
-            });
-            
-            // Theme selection
+            // Theme
             document.querySelectorAll('.theme-option').forEach(btn => {
+                btn.addEventListener('click', () => { state.theme = btn.dataset.theme; saveState(); render(); });
+            });
+            
+            // Zoom
+            document.getElementById('zoomSlider')?.addEventListener('input', (e) => {
+                state.zoom = parseFloat(e.target.value);
+                saveState(); applyTheme();
+                document.querySelector('h3:has(+ #zoomSlider)')?.previousElementSibling?.remove();
+                render();
+            });
+            
+            // Wallpaper
+            document.querySelectorAll('.wallpaper-option').forEach(btn => {
                 btn.addEventListener('click', () => {
-                    state.theme = btn.dataset.theme;
-                    saveState();
-                    render();
+                    state.chatWallpaper = btn.dataset.wallpaper;
+                    saveState(); render();
                 });
             });
-            
-            // New Chat Modal
-            document.getElementById('newChatBtn')?.addEventListener('click', () => {
-                document.getElementById('newChatModal').classList.remove('hidden');
+            document.getElementById('applyWallpaper')?.addEventListener('click', () => {
+                state.chatWallpaper = document.getElementById('customWallpaper').value;
+                saveState(); render();
+            });
+            document.getElementById('applyAppBg')?.addEventListener('click', () => {
+                state.appBackground = document.getElementById('customAppBg').value;
+                saveState(); render();
+            });
+            document.getElementById('clearAppBg')?.addEventListener('click', () => {
+                state.appBackground = '';
+                saveState(); render();
             });
             
-            document.getElementById('closeNewChat')?.addEventListener('click', () => {
-                document.getElementById('newChatModal').classList.add('hidden');
+            // Call settings
+            document.getElementById('whoCanCall')?.addEventListener('change', (e) => {
+                state.callSettings.whoCanCall = e.target.value;
+                saveState();
+            });
+            document.getElementById('videoDefault')?.addEventListener('change', (e) => {
+                state.callSettings.videoDefault = e.target.checked;
+                saveState();
             });
             
-            document.getElementById('newChatModal')?.addEventListener('click', (e) => {
-                if (e.target.id === 'newChatModal') {
-                    document.getElementById('newChatModal').classList.add('hidden');
-                }
+            // Profile
+            document.getElementById('saveProfile')?.addEventListener('click', () => {
+                updateProfile({
+                    displayName: document.getElementById('editDisplayName').value,
+                    bio: document.getElementById('editBio').value
+                });
+                render();
             });
             
-            // Add Friend
+            // New chat modals
+            document.getElementById('newChatBtn')?.addEventListener('click', () => document.getElementById('newChatModal').classList.remove('hidden'));
+            document.getElementById('closeNewChat')?.addEventListener('click', () => document.getElementById('newChatModal').classList.add('hidden'));
             document.getElementById('addFriendOption')?.addEventListener('click', () => {
                 document.getElementById('newChatModal').classList.add('hidden');
                 document.getElementById('addFriendModal').classList.remove('hidden');
             });
-            
-            document.getElementById('closeAddFriend')?.addEventListener('click', () => {
-                document.getElementById('addFriendModal').classList.add('hidden');
-            });
-            
-            document.getElementById('addFriendModal')?.addEventListener('click', (e) => {
-                if (e.target.id === 'addFriendModal') {
-                    document.getElementById('addFriendModal').classList.add('hidden');
-                }
-            });
-            
+            document.getElementById('closeAddFriend')?.addEventListener('click', () => document.getElementById('addFriendModal').classList.add('hidden'));
             document.getElementById('sendFriendRequest')?.addEventListener('click', () => {
-                const username = document.getElementById('friendUsername').value;
-                const result = sendFriendRequest(username);
+                const result = sendFriendRequest(document.getElementById('friendUsername').value);
                 if (result.error) {
                     document.getElementById('friendError').textContent = result.error;
                     document.getElementById('friendError').classList.remove('hidden');
                 } else {
                     document.getElementById('addFriendModal').classList.add('hidden');
-                    document.getElementById('friendUsername').value = '';
-                    state.currentView = 'requests';
-                    render();
+                    state.currentView = 'requests'; render();
                 }
             });
             
-            // Create Group
+            // Create group
             document.getElementById('createGroupOption')?.addEventListener('click', () => {
                 document.getElementById('newChatModal').classList.add('hidden');
                 document.getElementById('createGroupTitle').textContent = 'New Group';
                 document.getElementById('isChannel').value = 'false';
                 document.getElementById('createGroupModal').classList.remove('hidden');
             });
-            
             document.getElementById('createChannelOption')?.addEventListener('click', () => {
                 document.getElementById('newChatModal').classList.add('hidden');
                 document.getElementById('createGroupTitle').textContent = 'New Channel';
                 document.getElementById('isChannel').value = 'true';
                 document.getElementById('createGroupModal').classList.remove('hidden');
             });
-            
-            document.getElementById('closeCreateGroup')?.addEventListener('click', () => {
-                document.getElementById('createGroupModal').classList.add('hidden');
-            });
-            
-            document.getElementById('createGroupModal')?.addEventListener('click', (e) => {
-                if (e.target.id === 'createGroupModal') {
-                    document.getElementById('createGroupModal').classList.add('hidden');
-                }
-            });
-            
+            document.getElementById('closeCreateGroup')?.addEventListener('click', () => document.getElementById('createGroupModal').classList.add('hidden'));
             document.getElementById('createGroupBtn')?.addEventListener('click', () => {
                 const name = document.getElementById('groupName').value;
-                const description = document.getElementById('groupDescription').value;
-                const isChannel = document.getElementById('isChannel').value === 'true';
                 if (name.trim()) {
-                    const group = createGroup(name, description, isChannel);
+                    const group = createGroup(name, document.getElementById('groupDescription').value, document.getElementById('isChannel').value === 'true');
                     document.getElementById('createGroupModal').classList.add('hidden');
-                    document.getElementById('groupName').value = '';
-                    document.getElementById('groupDescription').value = '';
-                    state.currentChat = group;
-                    render();
+                    state.currentChat = group; render();
                 }
             });
             
-            // Group Info
+            // Group info
             document.getElementById('groupInfoBtn')?.addEventListener('click', () => {
                 const chat = state.currentChat;
                 const members = chat.members.map(id => state.users.find(u => u.id === id)).filter(Boolean);
                 const friendIds = state.friends[state.currentUser.id] || [];
-                const availableFriends = friendIds
-                    .filter(id => !chat.members.includes(id))
-                    .map(id => state.users.find(u => u.id === id))
-                    .filter(Boolean);
+                const availableFriends = friendIds.filter(id => !chat.members.includes(id)).map(id => state.users.find(u => u.id === id)).filter(Boolean);
                 
                 document.getElementById('groupInfoContent').innerHTML = `
                     <div class="text-center mb-4">
-                        <div class="w-20 h-20 rounded-full bg-accent flex items-center justify-center text-white text-3xl font-bold mx-auto mb-3">
-                            ${chat.avatar}
+                        <div class="avatar-upload w-20 h-20 rounded-full bg-accent flex items-center justify-center text-white text-3xl font-bold mx-auto mb-3" id="groupAvatarUpload">
+                            ${chat.avatarImage ? `<img src="${chat.avatarImage}" class="w-full h-full rounded-full object-cover">` : chat.avatar}
+                            <div class="avatar-overlay">📷</div>
+                            <input type="file" id="groupAvatarInput" class="hidden" accept="image/*">
                         </div>
                         <h3 class="text-xl font-semibold text-primary">${chat.name}</h3>
-                        <p class="text-secondary">${chat.type === 'channel' ? 'Channel' : 'Group'} · ${chat.members.length} members</p>
-                        ${chat.description ? `<p class="text-secondary mt-2">${chat.description}</p>` : ''}
+                        <p class="text-secondary">${chat.members.length} members</p>
                     </div>
-                    
                     ${chat.admins.includes(state.currentUser.id) && availableFriends.length > 0 ? `
-                        <div class="mb-4">
-                            <h4 class="text-sm font-semibold text-secondary mb-2">Add Members</h4>
-                            <select id="addMemberSelect" class="w-full p-2 rounded-lg bg-tertiary text-primary mb-2">
-                                <option value="">Select a friend...</option>
-                                ${availableFriends.map(f => `<option value="${f.username}">${f.displayName} (@${f.username})</option>`).join('')}
-                            </select>
-                            <button id="addMemberBtn" class="w-full bg-accent text-white p-2 rounded-lg font-medium hover:opacity-90">Add Member</button>
-                        </div>
+                        <select id="addMemberSelect" class="w-full p-2 rounded-lg mb-2">
+                            <option value="">Add member...</option>
+                            ${availableFriends.map(f => `<option value="${f.username}">${f.displayName}</option>`).join('')}
+                        </select>
+                        <button id="addMemberBtn" class="w-full bg-accent text-white p-2 rounded-lg mb-4">Add</button>
                     ` : ''}
-                    
-                    <h4 class="text-sm font-semibold text-secondary mb-2">Members</h4>
                     <div class="space-y-2">
                         ${members.map(m => `
-                            <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-tertiary">
-                                <div class="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-white font-semibold">
-                                    ${m.avatar}
-                                </div>
-                                <div class="flex-1">
-                                    <div class="font-medium text-primary">${m.displayName}</div>
-                                    <div class="text-sm text-secondary">@${m.username}</div>
-                                </div>
+                            <div class="flex items-center gap-3 p-2 rounded-lg">
+                                <div class="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-white">${m.avatar}</div>
+                                <div class="flex-1"><div class="text-primary">${m.displayName}</div></div>
                                 ${chat.admins.includes(m.id) ? '<span class="text-xs text-accent">Admin</span>' : ''}
                             </div>
                         `).join('')}
                     </div>
-                    
-                    <button id="leaveGroupBtn" class="w-full mt-4 p-3 text-red-500 rounded-lg hover:bg-red-500/10 font-medium">
-                        Leave ${chat.type === 'channel' ? 'Channel' : 'Group'}
-                    </button>
+                    <button id="leaveGroupBtn" class="w-full mt-4 p-3 text-red-500 rounded-lg hover:bg-red-500/10">Leave</button>
                 `;
-                
                 document.getElementById('groupInfoModal').classList.remove('hidden');
                 
-                document.getElementById('addMemberBtn')?.addEventListener('click', () => {
-                    const username = document.getElementById('addMemberSelect').value;
-                    if (username) {
-                        const result = addMemberToGroup(chat.id, username);
-                        if (result.success) {
-                            render();
-                            document.getElementById('groupInfoBtn')?.click();
-                        }
+                document.getElementById('groupAvatarUpload')?.addEventListener('click', () => document.getElementById('groupAvatarInput').click());
+                document.getElementById('groupAvatarInput')?.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (ev) => { updateGroupAvatar(chat.id, ev.target.result); render(); };
+                        reader.readAsDataURL(file);
                     }
                 });
-                
+                document.getElementById('addMemberBtn')?.addEventListener('click', () => {
+                    const username = document.getElementById('addMemberSelect').value;
+                    if (username) { addMemberToGroup(chat.id, username); render(); }
+                });
                 document.getElementById('leaveGroupBtn')?.addEventListener('click', () => {
-                    leaveGroup(chat.id);
-                    state.currentChat = null;
-                    document.getElementById('groupInfoModal').classList.add('hidden');
-                    render();
+                    leaveGroup(chat.id); state.currentChat = null;
+                    document.getElementById('groupInfoModal').classList.add('hidden'); render();
                 });
             });
+            document.getElementById('closeGroupInfo')?.addEventListener('click', () => document.getElementById('groupInfoModal').classList.add('hidden'));
             
-            document.getElementById('closeGroupInfo')?.addEventListener('click', () => {
-                document.getElementById('groupInfoModal').classList.add('hidden');
-            });
-            
-            document.getElementById('groupInfoModal')?.addEventListener('click', (e) => {
-                if (e.target.id === 'groupInfoModal') {
-                    document.getElementById('groupInfoModal').classList.add('hidden');
-                }
-            });
+            // Update call timer
+            if (state.activeCall?.status === 'active') {
+                setInterval(() => {
+                    const el = document.querySelector('.call-overlay p');
+                    if (el && state.activeCall) el.textContent = formatCallDuration(state.activeCall.startTime);
+                }, 1000);
+                setTimeout(acceptCall, 2000);
+            }
+            if (state.activeCall?.status === 'calling') {
+                setTimeout(acceptCall, 2000);
+            }
         }
 
         function sendCurrentMessage() {
@@ -1093,26 +1800,24 @@
             if (input && state.currentChat) {
                 sendMessage(state.currentChat.id, input.value);
                 input.value = '';
-                render();
-                scrollToBottom();
+                render(); scrollToBottom();
             }
         }
 
         function scrollToBottom() {
             setTimeout(() => {
                 const container = document.getElementById('messagesContainer');
-                if (container) {
-                    container.scrollTop = container.scrollHeight;
-                }
+                if (container) container.scrollTop = container.scrollHeight;
             }, 50);
         }
 
         // Initialize
+        initBot();
         checkAuth();
         render();
     </script>
 </body>
 </html>
 
-                       
+
 
